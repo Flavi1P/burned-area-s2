@@ -1,0 +1,312 @@
+# =============================================================================
+# burned-area-s2 -- single source of truth.
+#
+# The experimental plan lives HERE, not in the scripts. No event name, EMS code,
+# date or AOI appears anywhere else in the repository: every module and every
+# script takes an event identifier and resolves it through this file.
+#
+# All EMS facts below were read on 2026-08-21 from the Copernicus EMS Rapid
+# Mapping public API
+#   https://rapidmapping.emergency.copernicus.eu/backend/dashboard-api/public-activations/?code=EMSRxxx
+# and from the ISO 19115 lineage of each `observedEventA` layer inside the
+# delineation package.
+# =============================================================================
+
+project:
+  name: burned-area-s2
+
+  # 20 m: native for B8A/B11/B12, and -- the decisive argument -- the EMS
+  # delineations are digitised at 1:15 000 with a geometric RMSE of 8 m (see
+  # each event's `label.production`). A per-pixel score at 10 m would mostly
+  # measure the analyst's hand, not the method.
+  target_resolution_m: 20
+  target_crs: null            # null -> UTM zone of the Sentinel-2 tile
+  tile_size_px: 256           # 5.12 km, 2621 ha, 65536 px per tile
+
+  # 4 bands x 2 dates = 8 input channels. B02/B03 are dominated by residual
+  # atmospheric signal and add no burn information at this dataset size.
+  bands:                      # earth-search asset key -> Sentinel-2 band
+    red: B04
+    nir08: B8A
+    swir16: B11
+    swir22: B12
+  qa_band: scl                # Scene Classification Layer, cloud/shadow masking
+
+stac:
+  endpoint: https://earth-search.aws.element84.com/v1
+  collection: sentinel-2-l2a
+  # Scene-level cloud cover is computed over the whole 110 km MGRS tile, so it
+  # is a coarse pre-filter only -- deliberately loose, because a scene 70%
+  # clouded over its tile can be perfectly clear over a 20 km footprint inside
+  # it, and Saumos had exactly one candidate left when this sat at 40.
+  cloud_cover_max: 85
+  # The screen that actually decides. Cloud filters candidates, it never
+  # ranks them: among the scenes clear enough over the footprint, the date
+  # alone chooses. Fontainebleau is the case in point -- its 20%-scene-cloud
+  # candidate is 45% clouded over the burn, its 0.4% candidate is clear.
+  aoi_cloud_max: 0.15
+  # Scene selection rule (section 4 of the design note): among the candidates in
+  # the window, keep the acquisition closest to the date of the imagery the EMS
+  # analyst actually delineated on. Label/image coherence beats radiometric
+  # quality -- an incoherent pair is a systematic error that no metric recovers
+  # from, whereas residual smoke is only noise.
+  post_scene_rule: nearest_to_label_reference_date
+
+ems:
+  api: https://rapidmapping.emergency.copernicus.eu/backend/dashboard-api/public-activations/
+  download_root: https://rapidmapping.emergency.copernicus.eu/backend
+  observed_event_layer: observedEventA   # the burned perimeter
+  aoi_layer: areaOfInterestA
+
+paths:
+  data_raw: data/raw          # downloaded COGs and EMS packages (git-ignored)
+  data_interim: data/interim  # per-event stacks, label rasters (git-ignored)
+  data_tiles: data/tiles      # tile inventories (git-ignored)
+  outputs: outputs            # figures and tables (versioned)
+
+# -----------------------------------------------------------------------------
+# events
+#
+# Three distinct Copernicus EMS activations. Biscarrosse is the size control:
+# same biome as Saumos, same size class as Fontainebleau. Without it, a drop on
+# Fontainebleau would confound "different biome" with "smaller fire", and those
+# two conclusions carry very different weight.
+# -----------------------------------------------------------------------------
+events:
+
+  - id: saumos
+    name: Saumos
+    admin: Gironde (33), Nouvelle-Aquitaine, France
+    fuel: maritime pine plantation (Landes de Gascogne)
+    role: train
+    event_datetime: "2026-07-22T18:00:00"
+    aoi_bbox: [-1.2674, 44.6183, -0.6852, 45.0095]   # EPSG:4326, EMS AOI01 "Le Porge"
+    aoi_span_km: [43, 43]
+
+    label:
+      activation: EMSR899
+      aoi: AOI01
+      product: DEL_MONIT02        # latest delineation = full final extent
+      version: 1
+      status: final               # EMS statusCode "F", delivered 2026-07-30
+      package_url: https://rapidmapping.emergency.copernicus.eu/backend/EMSR899/AOI01/DEL_MONIT02/EMSR899_AOI01_DEL_MONIT02_v1.zip
+      # Date of the imagery the analyst delineated on. The post Sentinel-2 scene
+      # is matched against THIS, not against the event date.
+      reference_date: "2026-07-29"
+      source_imagery: ["Legion VHR2 2026-07-29T14:07"]
+      # Section 5: EMS production is not homogeneous, so the actual method is
+      # recorded per event and reported. Filled by src/data/ems.py from the
+      # ISO 19115 lineage of the observedEventA layer.
+      production:
+        # Read from the `det_method` attribute of the observedEventA polygons and
+        # from the ISO 19115 lineage, by `python -m src.data.ems --event saumos`.
+        method: "Semi-automatic extraction"
+        delineated_on: "Legion 1.2 m, 2026-07-29"
+        analysis_scale: "1:15000"
+        mmu_m2: 225          # minimum mapping unit
+        geometric_rmse_m: 2.4
+      reported_burnt_area_ha: 31602.4   # EMS "Burnt area" statistic, this product
+      # Alternative kept on record: DEL_MONIT01 v2 (2026-07-26) lists a
+      # Sentinel-2 acquisition of 2026-07-26T10:56 among its own sources, so its
+      # label/image coherence would be literal rather than approximate -- but it
+      # misses ~21% of the final burn (24857 ha vs 31602 ha). Extent won.
+      alternative_products:
+        - {product: DEL_MONIT01, version: 2, reference_date: "2026-07-26", burnt_area_ha: 24857.4}
+        - {product: DEL_PRODUCT, version: 1, reference_date: "2026-07-24", burnt_area_ha: 5775.4}
+
+    imagery:
+      pre_window: ["2026-06-15", "2026-07-20"]
+      post_window: ["2026-07-27", "2026-08-10"]
+      pre_date: null              # resolved in T1.1
+      post_date: null
+
+    # Widely reported figure. NOT the evaluation reference -- it aggregates
+    # several fronts and dates. The reference is the rasterised polygon.
+    press_area_ha: 42000
+
+  - id: biscarrosse
+    name: Biscarrosse
+    admin: Landes (40), Nouvelle-Aquitaine, France
+    fuel: maritime pine plantation (Landes de Gascogne)
+    role: test
+    test_purpose: size control -- same biome as saumos, same size class as fontainebleau
+    event_datetime: "2026-07-23T14:00:00"
+    aoi_bbox: [-1.2091, 44.3444, -1.0416, 44.4788]
+    aoi_span_km: [12, 15]
+
+    label:
+      activation: EMSR902
+      aoi: AOI01
+      product: DEL_MONIT01
+      version: 2
+      status: final               # EMS statusCode "F", delivered 2026-07-27
+      package_url: https://rapidmapping.emergency.copernicus.eu/backend/EMSR902/AOI01/DEL_MONIT01/EMSR902_AOI01_DEL_MONIT01_v2.zip
+      reference_date: "2026-07-26"
+      source_imagery: ["Legion VHR2 2026-07-26T08:32", "Sentinel-2 2026-07-26T10:56"]
+      production:
+        # Read from the `det_method` attribute of the observedEventA polygons and
+        # from the ISO 19115 lineage, by `python -m src.data.ems --event biscarrosse`.
+        method: "Semi-automatic extraction"
+        delineated_on: "Legion 2.0 m + Sentinel-2 10 m, 2026-07-26"
+        analysis_scale: "1:15000"
+        mmu_m2: 5625          # minimum mapping unit
+        geometric_rmse_m: 20.0
+      reported_burnt_area_ha: 1752.7
+      alternative_products:
+        - {product: DEL_PRODUCT, version: 1, reference_date: "2026-07-24", burnt_area_ha: 1018.6}
+
+    imagery:
+      pre_window: ["2026-06-15", "2026-07-21"]
+      post_window: ["2026-07-24", "2026-08-05"]
+      pre_date: null
+      post_date: null
+
+    press_area_ha: 2200           # figure quoted in the EMS activation request
+
+  - id: fontainebleau
+    name: Fontainebleau
+    admin: Seine-et-Marne (77), Ile-de-France, France
+    fuel: mixed high forest, broadleaf-dominated
+    role: test
+    test_purpose: biome transfer -- broadleaf forest, unseen at training time
+    event_datetime: "2026-07-12T15:00:00"
+    aoi_bbox: [2.4715, 48.3513, 2.7013, 48.4251]
+    aoi_span_km: [17, 8]
+
+    label:
+      activation: EMSR894
+      aoi: AOI01
+      product: DEL_MONIT01
+      version: 1
+      status: final               # EMS statusCode "F", delivered 2026-07-16
+      package_url: https://rapidmapping.emergency.copernicus.eu/backend/EMSR894/AOI01/DEL_MONIT01/EMSR894_AOI01_DEL_MONIT01_v1.zip
+      reference_date: "2026-07-16"
+      source_imagery: ["GeoSat-2 VHR2 2026-07-16T07:57"]
+      production:
+        # Read from the `det_method` attribute of the observedEventA polygons and
+        # from the ISO 19115 lineage, by `python -m src.data.ems --event fontainebleau`.
+        method: "Semi-automatic extraction"
+        delineated_on: "GeoSat-2 4.0 m, 2026-07-16"
+        analysis_scale: "1:15000"
+        mmu_m2: 576          # minimum mapping unit
+        geometric_rmse_m: 8.0
+      reported_burnt_area_ha: 831.9
+      alternative_products:
+        - {product: DEL_PRODUCT, version: 2, reference_date: "2026-07-14", burnt_area_ha: 769.3}
+
+    imagery:
+      pre_window: ["2026-06-01", "2026-07-11"]
+      # EMS stopped delineating on 2026-07-16 while reignitions were reported
+      # into late July. The label describes the 16 July extent, so the post
+      # scene must stay close to it: a later scene would show burn the label
+      # does not contain, and every such pixel would be scored a false positive.
+      post_window: ["2026-07-16", "2026-07-24"]
+      pre_date: null
+      post_date: null
+
+    press_area_ha: null
+
+# -----------------------------------------------------------------------------
+# experiments -- the results table in the README is a direct translation of this
+# block. Events are named by identifier only.
+# -----------------------------------------------------------------------------
+experiments:
+
+  - id: E1
+    question: In-domain reference ceiling.
+    train: [saumos]
+    test: [saumos]
+    split: spatial_blocks         # disjoint held-out blocks inside saumos, buffered
+
+  - id: E2
+    question: >
+      Transfer without recalibration. Comparing the two drops separates the size
+      effect (biscarrosse) from the biome effect (fontainebleau).
+    train: [saumos]
+    test: [biscarrosse, fontainebleau]
+    split: by_event
+
+  - id: E3
+    question: >
+      How many annotations does opening a new territory cost? Fine-tune the E1
+      weights on a spatially disjoint fraction of the target event.
+    train: [saumos]
+    finetune_on: fontainebleau
+    finetune_fractions: [0.0, 0.10, 0.25]
+    test: [fontainebleau]
+    split: spatial_blocks
+    # Fontainebleau fits in one or two spatial blocks, so a single partition
+    # would leave a tiny, luck-dominated evaluation set. Repeat over alternating
+    # disjoint partitions and publish mean + observed range, not a single line.
+    n_partitions: 5
+
+# -----------------------------------------------------------------------------
+# evaluation protocol
+# -----------------------------------------------------------------------------
+evaluation:
+
+  # Both methods output a continuous per-pixel score; the threshold is what
+  # makes a mask. Calibrating one and leaving the other at an arbitrary default
+  # compares an optimised operating point to an unoptimised one, with a bias of
+  # unknown sign. Same procedure, same pixels, frozen before test, both sides.
+  threshold:
+    calibrated_on: saumos
+    block_role: calibration       # blocks held out from both train and test
+    objective: f1
+    frozen: true
+    recalibrate_on_target: false
+
+  # Not a competitor -- impossible in production, it requires already knowing
+  # the truth. An instrument:
+  #   CNN ~ oracle > honest  -> the gain is calibration transfer, not context
+  #   CNN > oracle           -> the gain is information the index cannot hold
+  dnbr_oracle: true
+
+  # Circularity floor: how much of "U-Net > dNBR" is merely agreement with the
+  # way the label itself was produced.
+  report_dnbr_ems_agreement: true
+
+  # Test footprint = EMS area of interest + this buffer, purely geometric.
+  # Every tile inside it is evaluated, including entirely unburned ones.
+  test_footprint_buffer_m: 2000
+
+  metrics: [iou, f1, precision, recall, pr_curve, confusion_matrix, area_error_ha]
+  # Never global accuracy: it sits near 98% and means nothing under this imbalance.
+  forbidden_metrics: [accuracy]
+
+  tiling:
+    train: {overlap_px: 128}
+    # Overlap between test tiles manufactures dependence between evaluation
+    # units and invalidates the bootstrap. The test footprint is geometric
+    # (AOI + buffer) and nothing in it is filtered out.
+    test: {overlap_px: 0, filter_negatives: false}
+
+  negative_sampling:
+    # Train only.
+    ratio_negative_to_positive: 2.0
+    oversample: [clearcut, cloud_shadow]
+
+  spatial_blocks:
+    # Beyond the autocorrelation range of a burn scar: a 30 000 ha scar spans
+    # ~20 km, so two neighbouring 5 km tiles are massively correlated and using
+    # the tile as the bootstrap unit would repeat, more subtly, the very leak
+    # the protocol exists to remove.
+    superblock_km: 17.5
+    bootstrap_iterations: 1000
+    # Below this: report the point estimate and write "interval not estimable --
+    # N independent spatial blocks". A declared hole beats a false interval.
+    min_blocks_for_interval: 4
+
+model:
+  architecture: unet
+  encoder: resnet34
+  encoder_weights: imagenet
+  in_channels: 8
+  classes: 1
+  loss: {bce_weight: 1.0, dice_weight: 1.0}
+  batch_size: 8
+  epochs: 40
+  lr: 0.0003
+  seed: 20260821
+  # No multi-seed spread: it measures optimiser variance, not the variance that
+  # matters, and printing it next to a single-event metric fakes precision.

@@ -50,6 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+.claude/
 
 # Translations
 *.mo
@@ -216,3 +217,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project data (rasters, EMS packages, tile inventories) stays off git.
+# Anchored to the repository root: an unanchored `data/` would also swallow
+# src/data/, which is where half the pipeline lives.
+/data/
+outputs/*.tif
