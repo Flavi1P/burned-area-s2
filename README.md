@@ -4,13 +4,13 @@ Burned-area segmentation from Sentinel-2 pre/post pairs: a U-Net compared
 against a thresholded dNBR baseline, on three Copernicus EMS fires from the
 2026 French season.
 
-The interesting question isn't whether a CNN beats a spectral index — it's
-*where* a per-pixel index fails, and whether spatial context fixes those
-specific failures. So both methods get a single decision threshold, calibrated
-the same way on the same held-out pixels and frozen before test, and the split
-is by event: train on Saumos (31 602 ha, pine), test on Biscarrosse (1 753 ha,
-pine) and Fontainebleau (832 ha, broadleaf). Comparing the two drops separates
-a size effect from a biome effect.
+The aim is to locate *where* a per-pixel index fails, and to see whether
+spatial context fixes those specific failures. So both methods get a single
+decision threshold, calibrated the same way on the same held-out pixels and
+frozen before test, and the split is by event: train on Saumos (31 602 ha,
+pine), test on Biscarrosse (1 753 ha, pine) and Fontainebleau (832 ha,
+broadleaf). Comparing the two drops separates a size effect from a biome
+effect.
 
 **What works today:** scene search and download from the public Sentinel-2
 archive, EMS label rasterisation on the 20 m grid, and the figures below.
@@ -37,7 +37,7 @@ python -m src.viz.quicklook --event saumos        # before / after / label
 pytest -q
 ```
 
-No credentials needed — the imagery is public COGs from the Element 84 STAC
+No credentials needed. The imagery is public COGs from the Element 84 STAC
 catalogue.
 
 ## Layout
@@ -53,8 +53,8 @@ outputs/        versioned figures and tables, never rasters
 tests/          guards on the evaluation setup
 ```
 
-The tests exist because the failure mode worth defending against isn't a crash,
-it's a plausible number produced by a leak: a test event can't appear in
+The tests exist because a leak produces a plausible number rather than a
+crash, and that's the harder failure to catch: a test event can't appear in
 training, the threshold can't be calibrated on a test event, test tiles can't
 overlap, negative test tiles can't be filtered out.
 
