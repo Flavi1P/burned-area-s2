@@ -71,9 +71,11 @@ burned there is not — is where it should show up.
 ![Saumos spatial blocks and cloud loss](outputs/split_saumos.png)
 
 **Split by event, and by spatial block inside the training event.** Blocks are
-~17.5 km, beyond the autocorrelation range of a scar this size. A 1 km buffer
-between roles belongs to nobody, so no training pixel is within 2 km of a
-calibration or test pixel.
+~17.5 km, beyond the autocorrelation range of a scar this size. Roles are
+separated by a 1 km buffer belonging to nobody — a compromise, not a guarantee,
+since 2 km is inside the range the blocks exist to respect. Full separation was
+tried: it left 30 ha of burned ground in the calibration blocks out of 1 442,
+nothing to calibrate on. Stated rather than solved.
 
 **The test footprint is geometric** — EMS area of interest plus a 2 km buffer —
 and every pixel inside it is scored, including entirely unburned ones. Nothing
@@ -142,10 +144,10 @@ tests/          guards on the evaluation setup
 
 The tests exist because a leak produces a plausible number rather than a
 crash, and that's the harder failure to catch: a test event can't appear in
-training, the threshold can't be calibrated on a test event, test tiles can't
-overlap, negative test tiles can't be filtered out, an interval can't be
-published over a domain that cannot support one, and accuracy can't reach a
-table.
+training, the threshold can't be calibrated on a test event, an interval can't
+be published over a domain that cannot support one, and accuracy can't reach a
+table. Two settings are guarded ahead of the code that will read them: test
+tiles can't be given an overlap, negative test tiles can't be filtered out.
 
 ## Data
 
