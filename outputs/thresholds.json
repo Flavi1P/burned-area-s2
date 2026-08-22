@@ -1,0 +1,18 @@
+{
+  "objective": "f1",
+  "calibrated_on_event": "saumos",
+  "block_role": "calibration",
+  "recalibrate_on_target": false,
+  "thresholds": {
+    "dnbr": {
+      "value": 0.7434656620025635,
+      "objective": "f1",
+      "score_name": "dnbr",
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,269 usable px, 16,651 burned",
+      "n_pixels": 772269,
+      "n_positive": 16651,
+      "objective_value": 0.5614985459314593,
+      "frozen": true
+    }
+  }
+}

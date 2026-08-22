@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import numpy as np
@@ -76,6 +76,11 @@ class Scene:
     assets: dict[str, str]
     reason: str
     footprint_cloud: float | None = None  # SCL cloud+shadow over the event grid
+    # DN -> reflectance, per asset, as the catalogue declares it. Since
+    # processing baseline 04.00 the L2A products carry a -1000 DN offset, so
+    # `DN * 1e-4` alone is wrong by 0.1 reflectance -- enough to move a dNBR
+    # threshold. Read from `raster:bands`, never assumed.
+    scaling: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     @property
     def date(self) -> dt.date:
@@ -123,9 +128,16 @@ def search_scenes(cfg: Config, event: Event, phase: str) -> list[Scene]:
                 phase=phase,
                 assets={k: a.href for k, a in item.assets.items()},
                 reason="",
+                scaling={k: _scaling(a) for k, a in item.assets.items()},
             )
         )
     return sorted(scenes, key=lambda s: s.datetime, reverse=True)
+
+
+def _scaling(asset) -> tuple[float, float]:
+    """`(scale, offset)` of one asset, from its `raster:bands` declaration."""
+    bands = asset.extra_fields.get("raster:bands") or [{}]
+    return float(bands[0].get("scale", 1.0)), float(bands[0].get("offset", 0.0))
 
 
 def cloud_shadow_fraction(scl: np.ndarray) -> float:
@@ -274,9 +286,15 @@ def fetch_band(
                 dtype = vrt.dtypes[0]
                 nodata = src.nodata
 
+    scale, offset = scene.scaling.get(asset, (1.0, 0.0))
     profile = grid.profile(str(dtype), nodata=nodata)
     with rasterio.open(dest, "w", **profile) as dst:
         dst.write(data, 1)
+        # The DN stay untouched on disk; the conversion travels with them as
+        # band metadata, so anything reading this file offline recovers
+        # reflectance without a catalogue round-trip.
+        dst.scales = (scale,)
+        dst.offsets = (offset,)
         dst.update_tags(
             stac_item=scene.item_id,
             asset=asset,

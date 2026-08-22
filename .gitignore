@@ -218,7 +218,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Project data (rasters, EMS packages, tile inventories) stays off git.
+# Project data (rasters, EMS packages) stays off git.
 # Anchored to the repository root: an unanchored `data/` would also swallow
 # src/data/, which is where half the pipeline lives.
 /data/

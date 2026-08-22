@@ -1,0 +1,213 @@
+{
+  "superblock_km": 17.5,
+  "role_buffer_m": 1000,
+  "min_blocks_for_interval": 4,
+  "events": [
+    {
+      "event": "saumos",
+      "grid": {
+        "crs": "EPSG:32630",
+        "width": 2557,
+        "height": 2431,
+        "resolution_m": 20.0
+      },
+      "n_blocks": 9,
+      "buffer_fraction_of_footprint": 0.1072,
+      "valid_fraction_of_footprint": 0.7271,
+      "roles": {
+        "train": {
+          "blocks": [
+            "r1c0",
+            "r1c1",
+            "r2c0"
+          ],
+          "usable_pixels": 1410610,
+          "burned_pixels": 341557,
+          "burned_ha": 13662.3
+        },
+        "calibration": {
+          "blocks": [
+            "r0c0",
+            "r1c2"
+          ],
+          "usable_pixels": 772271,
+          "burned_pixels": 16653,
+          "burned_ha": 666.1
+        },
+        "test": {
+          "blocks": [
+            "r0c1",
+            "r0c2",
+            "r2c1",
+            "r2c2"
+          ],
+          "usable_pixels": 1938519,
+          "burned_pixels": 130986,
+          "burned_ha": 5239.4
+        }
+      },
+      "blocks": [
+        {
+          "block": "r0c0",
+          "role": "calibration",
+          "pixels": 690120,
+          "usable_pixels": 526605,
+          "burned_pixels": 16283,
+          "burned_ha": 651.3
+        },
+        {
+          "block": "r0c1",
+          "role": "test",
+          "pixels": 690930,
+          "usable_pixels": 486975,
+          "burned_pixels": 123088,
+          "burned_ha": 4923.5
+        },
+        {
+          "block": "r0c2",
+          "role": "test",
+          "pixels": 690120,
+          "usable_pixels": 443629,
+          "burned_pixels": 0,
+          "burned_ha": 0.0
+        },
+        {
+          "block": "r1c0",
+          "role": "train",
+          "pixels": 690972,
+          "usable_pixels": 525756,
+          "burned_pixels": 140484,
+          "burned_ha": 5619.4
+        },
+        {
+          "block": "r1c1",
+          "role": "train",
+          "pixels": 691783,
+          "usable_pixels": 279511,
+          "burned_pixels": 201073,
+          "burned_ha": 8042.9
+        },
+        {
+          "block": "r1c2",
+          "role": "calibration",
+          "pixels": 690972,
+          "usable_pixels": 245666,
+          "burned_pixels": 370,
+          "burned_ha": 14.8
+        },
+        {
+          "block": "r2c0",
+          "role": "train",
+          "pixels": 690120,
+          "usable_pixels": 605343,
+          "burned_pixels": 0,
+          "burned_ha": 0.0
+        },
+        {
+          "block": "r2c1",
+          "role": "test",
+          "pixels": 690930,
+          "usable_pixels": 484293,
+          "burned_pixels": 716,
+          "burned_ha": 28.6
+        },
+        {
+          "block": "r2c2",
+          "role": "test",
+          "pixels": 690120,
+          "usable_pixels": 523622,
+          "burned_pixels": 7182,
+          "burned_ha": 287.3
+        }
+      ]
+    },
+    {
+      "event": "biscarrosse",
+      "grid": {
+        "crs": "EPSG:32630",
+        "width": 885,
+        "height": 962,
+        "resolution_m": 20.0
+      },
+      "n_blocks": 1,
+      "buffer_fraction_of_footprint": 0.0,
+      "valid_fraction_of_footprint": 0.9648,
+      "roles": {
+        "train": {
+          "blocks": [],
+          "usable_pixels": 0,
+          "burned_pixels": 0,
+          "burned_ha": 0.0
+        },
+        "calibration": {
+          "blocks": [],
+          "usable_pixels": 0,
+          "burned_pixels": 0,
+          "burned_ha": 0.0
+        },
+        "test": {
+          "blocks": [
+            "r0c0"
+          ],
+          "usable_pixels": 821389,
+          "burned_pixels": 43799,
+          "burned_ha": 1752.0
+        }
+      },
+      "blocks": [
+        {
+          "block": "r0c0",
+          "role": "test",
+          "pixels": 851370,
+          "usable_pixels": 821389,
+          "burned_pixels": 43799,
+          "burned_ha": 1752.0
+        }
+      ]
+    },
+    {
+      "event": "fontainebleau",
+      "grid": {
+        "crs": "EPSG:32631",
+        "width": 1054,
+        "height": 616,
+        "resolution_m": 20.0
+      },
+      "n_blocks": 1,
+      "buffer_fraction_of_footprint": 0.0,
+      "valid_fraction_of_footprint": 0.9999,
+      "roles": {
+        "train": {
+          "blocks": [],
+          "usable_pixels": 0,
+          "burned_pixels": 0,
+          "burned_ha": 0.0
+        },
+        "calibration": {
+          "blocks": [],
+          "usable_pixels": 0,
+          "burned_pixels": 0,
+          "burned_ha": 0.0
+        },
+        "test": {
+          "blocks": [
+            "r0c0"
+          ],
+          "usable_pixels": 649170,
+          "burned_pixels": 20784,
+          "burned_ha": 831.4
+        }
+      },
+      "blocks": [
+        {
+          "block": "r0c0",
+          "role": "test",
+          "pixels": 649264,
+          "usable_pixels": 649170,
+          "burned_pixels": 20784,
+          "burned_ha": 831.4
+        }
+      ]
+    }
+  ]
+}

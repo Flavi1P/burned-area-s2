@@ -61,7 +61,6 @@ ems:
 paths:
   data_raw: data/raw          # downloaded COGs and EMS packages (git-ignored)
   data_interim: data/interim  # per-event stacks, label rasters (git-ignored)
-  data_tiles: data/tiles      # tile inventories (git-ignored)
   outputs: outputs            # figures and tables (versioned)
 
 # -----------------------------------------------------------------------------
@@ -117,8 +116,20 @@ events:
     imagery:
       pre_window: ["2026-06-15", "2026-07-20"]
       post_window: ["2026-07-27", "2026-08-10"]
-      pre_date: null              # resolved in T1.1
-      post_date: null
+      # T1.1. Resolved once by the rule above, then frozen here so the chain is
+      # reproducible offline and the choice is auditable without a network call.
+      # Both were re-checked against the full candidate list on 2026-08-22.
+      #   pre : the three candidates closer to ignition (11, 13, 16 Jul) are
+      #         48%, 54% and 73% clouded over the footprint. 06 Jul is the
+      #         nearest clear one. A 16-day gap to ignition costs some
+      #         phenological drift; a half-clouded pre-image costs the pixels.
+      pre_date: "2026-07-06"
+      #   post: +4 d from the label reference date, and the only alternative
+      #         (10 Aug) is 75% clouded. Kept despite 27.3% cloud/shadow over
+      #         the footprint -- the single worst validity figure in the
+      #         project, carried into the results table rather than hidden:
+      #         those pixels are dropped for BOTH methods identically.
+      post_date: "2026-08-02"
 
     # Widely reported figure. NOT the evaluation reference -- it aggregates
     # several fronts and dates. The reference is the rasterised polygon.
@@ -158,8 +169,13 @@ events:
     imagery:
       pre_window: ["2026-06-15", "2026-07-21"]
       post_window: ["2026-07-24", "2026-08-05"]
-      pre_date: null
-      post_date: null
+      #   pre : -2 d from ignition, 0.0% cloud/shadow. Nothing to arbitrate.
+      pre_date: "2026-07-21"
+      #   post: the 26 Jul acquisition is literally one of the images the EMS
+      #         analyst delineated on -- label/image coherence would be exact --
+      #         but it is 48.6% clouded over the footprint. Coherence is worth
+      #         a lot, not half the event. 02 Aug at 3.5% wins, +7 d.
+      post_date: "2026-08-02"
 
     press_area_ha: 2200           # figure quoted in the EMS activation request
 
@@ -201,8 +217,13 @@ events:
       # scene must stay close to it: a later scene would show burn the label
       # does not contain, and every such pixel would be scored a false positive.
       post_window: ["2026-07-16", "2026-07-24"]
-      pre_date: null
-      post_date: null
+      #   pre : -2 d from ignition, 0.0% cloud/shadow.
+      pre_date: "2026-07-10"
+      #   post: 18 Jul is nearer the label reference date (+2 d vs +4 d) but is
+      #         45.1% clouded over the footprint; 20 Jul is at 0.0%. Both sit
+      #         before the late-July reignitions, so neither shows burn the
+      #         label does not contain.
+      post_date: "2026-07-20"
 
     press_area_ha: null
 
@@ -281,21 +302,84 @@ evaluation:
     # (AOI + buffer) and nothing in it is filtered out.
     test: {overlap_px: 0, filter_negatives: false}
 
-  negative_sampling:
-    # Train only.
-    ratio_negative_to_positive: 2.0
-    oversample: [clearcut, cloud_shadow]
+  # No negative-tile sampling policy, and that is a measured decision rather
+  # than an omission. The design note asked for ~2 negatives per positive with
+  # clearcuts oversampled. On the ground this project actually has, the train
+  # role of saumos yields 65 usable tiles at the overlap above, 34 of them
+  # positive -- already ~1:1. Enforcing 2:1 could only be done by discarding
+  # positives from a pool of 65. And no clearcut layer exists here; the only
+  # way to build one in scope would be to threshold the dNBR, which is the
+  # baseline under test and would make the training set circular.
+  #
+  # So the training pool is every train-role tile that fits, and its actual
+  # composition is reported rather than engineered.
 
   spatial_blocks:
-    # Beyond the autocorrelation range of a burn scar: a 30 000 ha scar spans
-    # ~20 km, so two neighbouring 5 km tiles are massively correlated and using
-    # the tile as the bootstrap unit would repeat, more subtly, the very leak
-    # the protocol exists to remove.
+    # Beyond the autocorrelation range of a burn scar; the reasoning is in the
+    # module docstring of src/eval/blocks.py.
     superblock_km: 17.5
     bootstrap_iterations: 1000
     # Below this: report the point estimate and write "interval not estimable --
     # N independent spatial blocks". A declared hole beats a false interval.
+    #
+    # Counted over blocks that CONTAIN BURNED PIXELS, not blocks. Every metric
+    # here is a statement about burned area, so a block holding only background
+    # is not a replicate of it. On the numbers this project actually has, that
+    # reading costs the interval everywhere -- including on the training event,
+    # whose four held-out blocks carry 94% of their burned area in one of them.
+    # Declaring that is the point of the rule.
     min_blocks_for_interval: 4
+
+    # Pixels within this distance of a block holding a different role belong to
+    # no role at all, so a train pixel and a calibration or test pixel are
+    # never closer than 2 km. The guarantee that no *tile* straddles a seam is
+    # enforced separately, by requiring every training tile to lie entirely
+    # inside train-role pixels -- which is stricter than any buffer and free.
+    #
+    # 2560 m (half a tile) was tried first and had to be abandoned: the Saumos
+    # scar is ~18 km across and the 17 km block seams cut through its middle,
+    # so a 2.5 km erosion on both sides of every seam removed 98% of the burned
+    # area in the calibration blocks (1442 ha -> 30 ha) and left nothing to
+    # calibrate a threshold on. 1000 m costs 10.7% of the footprint instead of
+    # 26.1% and leaves 666 ha. The residual risk this accepts is fine-scale
+    # correlation across a seam at 1-2 km, which is far below the range the
+    # super-block exists to defend against.
+    role_buffer_m: 1000
+
+    # Roles inside the training event. Blocks are named r{row}c{col} from the
+    # north-west corner of the event grid, so the map below is literally the
+    # layout on the ground; src/eval/blocks.py derives the same ids from the
+    # grid geometry alone. Saumos is 51.1 x 48.6 km, so it holds 3 x 3 blocks
+    # of ~17 km; the two test events fit in one block each and are test in
+    # full, which is why neither of them can carry a bootstrap interval.
+    #
+    # The partition was drawn by looking at the TRAINING event's own label, and
+    # at nothing else -- no test event took part in it. Three constraints fixed
+    # it, and they conflict, because the scar is not spread evenly over the AOI:
+    # 87% of the burned pixels sit in the four north-west blocks.
+    #   - every role must hold burned area, or a threshold calibrated on the
+    #     calibration blocks would be calibrated on almost pure background;
+    #   - the test role must hold at least `min_blocks_for_interval` blocks, or
+    #     the in-domain reference row carries no interval either;
+    #   - the scar's core stays in train, because the model has to learn from
+    #     something.
+    # Burned hectares surviving the cloud mask and the buffer in each role:
+    # train 13 662, calibration 666, test 5 239, out of 31 592 ha rasterised.
+    # The gap is the price of the Saumos post-fire scene, which is 27% clouded
+    # and is still the best one available -- see the event's `post_date`.
+    #
+    # Declared and not worked around: burn prevalence is 24% in the train
+    # blocks, 2.2% in the calibration blocks and 6.8% in the test blocks,
+    # because the scar is a single blob rather than something spread evenly
+    # over the AOI. An F1-optimal threshold depends on prevalence, so the
+    # frozen threshold is not the optimum for the test blocks. That is the
+    # point: the protocol guarantees the two methods share one procedure and
+    # one set of pixels, not that either is at its own optimum.
+    roles:
+      saumos:
+        calibration: [r0c0, r1c2]
+        test: [r0c1, r0c2, r2c1, r2c2]
+        # everything not named above is train
 
 model:
   architecture: unet
