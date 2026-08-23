@@ -5,13 +5,23 @@
   "recalibrate_on_target": false,
   "thresholds": {
     "dnbr": {
-      "value": 0.7434656620025635,
+      "value": 0.5762747526168823,
       "objective": "f1",
       "score_name": "dnbr",
-      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,269 usable px, 16,651 burned",
-      "n_pixels": 772269,
-      "n_positive": 16651,
-      "objective_value": 0.5614985459314593,
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "n_pixels": 772271,
+      "n_positive": 16653,
+      "objective_value": 0.3831268344632328,
+      "frozen": true
+    },
+    "unet": {
+      "value": 0.8852156400680542,
+      "objective": "f1",
+      "score_name": "unet",
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "n_pixels": 772271,
+      "n_positive": 16653,
+      "objective_value": 0.9397120132462079,
       "frozen": true
     }
   }

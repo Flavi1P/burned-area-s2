@@ -43,6 +43,10 @@ from .stac import SCL_CLOUD_SHADOW, SCL_NO_DATA, fetch_scene
 
 PHASES = ("pre", "post")
 
+# Water, deep shadow and residual atmospheric correction artefacts legitimately
+# push a few pixels just below zero. A tenth of the scene doing so does not.
+NEGATIVE_REFLECTANCE_LIMIT = 0.10
+
 
 @dataclass(frozen=True)
 class Stack:
@@ -73,15 +77,44 @@ def valid_path(cfg: Config, event: Event) -> Path:
 
 
 def _read_reflectance(path: Path) -> np.ndarray:
-    """One band as float32 reflectance, NaN where the source says nodata."""
+    """One band as float32 reflectance, NaN where the source says nodata.
+
+    **The declared band offset is deliberately not applied, and this is not an
+    oversight.** These COGs carry ``offset = -0.1``, which describes the
+    +1000 DN shift Sentinel-2 processing baseline 04.00 introduced. The assets
+    earth-search serves are already harmonised back to the pre-04.00 convention,
+    so applying it a second time subtracts 0.1 reflectance from every band.
+
+    That is not a cosmetic error. On this scene it puts 90% of red-band and 71%
+    of B12 pixels at negative reflectance, and NBR -- a normalised difference
+    whose denominator then passes through zero -- stops being bounded by +/-1 for
+    roughly half the image and stops being monotonic in the quantity it is meant
+    to measure. It would cripple the dNBR baseline while leaving the network
+    untouched, since per-channel standardisation absorbs an additive shift. A
+    comparison won that way would be worthless.
+
+    The evidence, on the pre-fire Biscarrosse scene: median DN is 341 in the red
+    band and 667 in B12, giving 0.034 and 0.067 reflectance without the offset --
+    textbook values for dense conifer -- against -0.066 and -0.033 with it.
+
+    The guard below turns any recurrence of this into a loud failure rather than
+    a plausible-looking table.
+    """
     with rasterio.open(path) as src:
         dn = src.read(1)
         scale = src.scales[0]
-        offset = src.offsets[0]
         nodata = src.nodata
-    out = dn.astype("float32") * scale + offset
+    out = dn.astype("float32") * scale
     if nodata is not None:
         out[dn == nodata] = np.nan
+
+    finite = out[np.isfinite(out)]
+    if finite.size and float((finite < 0).mean()) > NEGATIVE_REFLECTANCE_LIMIT:
+        raise ValueError(
+            f"{path.name}: {float((finite < 0).mean()):.1%} of valid pixels have "
+            "negative reflectance. Reflectance cannot be negative; the scaling of "
+            "this asset is wrong, and every index derived from it would be too."
+        )
     return out
 
 

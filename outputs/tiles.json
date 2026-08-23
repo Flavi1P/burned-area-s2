@@ -1,0 +1,71 @@
+{
+  "tile_size_px": 256,
+  "tile_km": 5.12,
+  "sets": [
+    {
+      "event": "saumos",
+      "regime": "train",
+      "role": "train",
+      "stride_px": 128,
+      "min_valid_fraction": 0.5,
+      "tiles": 70,
+      "positive": 34,
+      "negative": 36,
+      "negatives_per_positive": 1.06,
+      "mean_valid_fraction": 0.8708,
+      "mean_burned_fraction_of_positives": 0.5326
+    },
+    {
+      "event": "saumos",
+      "regime": "train",
+      "role": "calibration",
+      "stride_px": 128,
+      "min_valid_fraction": 0.5,
+      "tiles": 27,
+      "positive": 1,
+      "negative": 26,
+      "negatives_per_positive": 26.0,
+      "mean_valid_fraction": 0.8719,
+      "mean_burned_fraction_of_positives": 0.0384
+    },
+    {
+      "event": "saumos",
+      "regime": "test",
+      "role": "test",
+      "stride_px": 256,
+      "min_valid_fraction": 0.0,
+      "tiles": 100,
+      "positive": 31,
+      "negative": 69,
+      "negatives_per_positive": 2.23,
+      "mean_valid_fraction": 0.7384,
+      "mean_burned_fraction_of_positives": 0.3888
+    },
+    {
+      "event": "biscarrosse",
+      "regime": "test",
+      "role": "test",
+      "stride_px": 256,
+      "min_valid_fraction": 0.0,
+      "tiles": 16,
+      "positive": 8,
+      "negative": 8,
+      "negatives_per_positive": 1.0,
+      "mean_valid_fraction": 0.9613,
+      "mean_burned_fraction_of_positives": 0.0881
+    },
+    {
+      "event": "fontainebleau",
+      "regime": "test",
+      "role": "test",
+      "stride_px": 256,
+      "min_valid_fraction": 0.0,
+      "tiles": 15,
+      "positive": 11,
+      "negative": 4,
+      "negatives_per_positive": 0.36,
+      "mean_valid_fraction": 0.9999,
+      "mean_burned_fraction_of_positives": 0.0446
+    }
+  ]
+}

@@ -61,6 +61,7 @@ ems:
 paths:
   data_raw: data/raw          # downloaded COGs and EMS packages (git-ignored)
   data_interim: data/interim  # per-event stacks, label rasters (git-ignored)
+  models: data/models         # trained weights, ~90 MB each (git-ignored)
   outputs: outputs            # figures and tables (versioned)
 
 # -----------------------------------------------------------------------------
@@ -296,7 +297,11 @@ evaluation:
   forbidden_metrics: [accuracy]
 
   tiling:
-    train: {overlap_px: 128}
+    # A training tile must lie entirely inside pixels carrying one role -- see
+    # the module docstring of src/data/tiles.py -- and must be at least half
+    # usable after cloud masking. The Saumos post-fire scene is 27% clouded, and
+    # a tile that is mostly NaN teaches the network to predict from padding.
+    train: {overlap_px: 128, min_valid_fraction: 0.5}
     # Overlap between test tiles manufactures dependence between evaluation
     # units and invalidates the bootstrap. The test footprint is geometric
     # (AOI + buffer) and nothing in it is filtered out.
@@ -305,9 +310,9 @@ evaluation:
   # No negative-tile sampling policy, and that is a measured decision rather
   # than an omission. The design note asked for ~2 negatives per positive with
   # clearcuts oversampled. On the ground this project actually has, the train
-  # role of saumos yields 65 usable tiles at the overlap above, 34 of them
+  # role of saumos yields 70 usable tiles at the overlap above, 34 of them
   # positive -- already ~1:1. Enforcing 2:1 could only be done by discarding
-  # positives from a pool of 65. And no clearcut layer exists here; the only
+  # positives from a pool of 70. And no clearcut layer exists here; the only
   # way to build one in scope would be to threshold the dNBR, which is the
   # baseline under test and would make the training set circular.
   #
@@ -384,13 +389,37 @@ evaluation:
 model:
   architecture: unet
   encoder: resnet34
+  # On SWIR channels the contribution of pretrained first-layer RGB filters is
+  # marginal. The real benefit is a regularising initialisation of the deep
+  # layers, which matters here precisely because the training set is 65 tiles.
   encoder_weights: imagenet
   in_channels: 8
   classes: 1
+  # BCE stabilises the start of training, when Dice gradients are poor because
+  # nothing is predicted positive yet; Dice then carries the class imbalance.
   loss: {bce_weight: 1.0, dice_weight: 1.0}
   batch_size: 8
   epochs: 40
   lr: 0.0003
+  weight_decay: 0.0001
+  lr_schedule: cosine         # to zero over `epochs`; adds no tunable parameter
   seed: 20260821
   # No multi-seed spread: it measures optimiser variance, not the variance that
   # matters, and printing it next to a single-event metric fakes precision.
+
+  # The D4 group -- flips and 90-degree rotations -- and nothing else. A burn
+  # scar has no canonical orientation, so D4 is label-preserving by construction.
+  # Photometric jitter would be actively wrong on calibrated reflectance, and
+  # scaling would break the 20 m grid the whole protocol is defined on.
+  augment: d4
+
+  # Model selection runs on the calibration blocks, which are held out from both
+  # train and test, and on average precision, which is threshold-free. Selecting
+  # on a thresholded score would entangle the choice of epoch with the choice of
+  # threshold; those are kept separate on purpose. The consequence to declare:
+  # the calibration blocks do double duty, model selection and threshold, so the
+  # F1 the threshold reports there is mildly optimistic. Neither use touches a
+  # test pixel, which is the property that matters.
+  select_on: average_precision
+  # Windows spawns rather than forks, and 65 in-memory tiles do not need workers.
+  num_workers: 0

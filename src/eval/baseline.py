@@ -82,20 +82,34 @@ class Domain:
         return int(np.unique(self.group[self.truth]).size)
 
 
-def build_domain(cfg: Config, event: Event, role: str = "test") -> Domain:
+def build_domain(
+    cfg: Config, event: Event, role: str = "test", score: np.ndarray | None = None
+) -> Domain:
     """Assemble the evaluation domain of one event.
 
     Section 6.1: the footprint is geometric -- the EMS area of interest plus a
     buffer -- and every pixel inside it is scored, including entirely unburned
     ones. Nothing is filtered for being negative; the only pixels removed are
     the ones no method can see, and they are removed for every method at once.
+
+    ``score`` is the only thing a method supplies. It defaults to the dNBR, and
+    the U-Net passes its probability raster through this same function -- which
+    is why "both methods were measured by the same code" is a fact about the
+    call graph rather than a claim in a README. Every other input to the domain
+    (footprint, role, validity, label, block index) is fixed by the event.
     """
     grid = grid_for_event(cfg, event)
     blocks = blocks_for_event(cfg, event, grid)
     valid = read_valid(cfg, event)
     with rasterio.open(ems.label_raster_path(cfg, event)) as src:
         label = src.read(1) > 0
-    score = read_dnbr(cfg, event)
+    if score is None:
+        score = read_dnbr(cfg, event)
+    if score.shape != grid.shape:
+        raise ValueError(
+            f"{event.id}: score raster {score.shape} does not match the event grid "
+            f"{grid.shape}"
+        )
 
     mask = blocks.mask(role) & valid & np.isfinite(score)
     return Domain(
@@ -125,7 +139,7 @@ def calibration_domain(cfg: Config) -> Domain:
     return build_domain(cfg, event, role=settings["block_role"])
 
 
-def _bootstrap(cfg: Config, domain: Domain, value: float) -> dict[str, Interval]:
+def bootstrap_intervals(cfg: Config, domain: Domain, value: float) -> dict[str, Interval]:
     settings = cfg.evaluation["spatial_blocks"]
     counts = confusion_by_group(
         domain.score, domain.truth, value, domain.group, int(domain.group.max()) + 1
@@ -138,8 +152,9 @@ def _bootstrap(cfg: Config, domain: Domain, value: float) -> dict[str, Interval]
     )
 
 
-def _with_interval(cfg: Config, domain: Domain, result: Result) -> Result:
-    intervals = _bootstrap(cfg, domain, result.threshold)
+def with_interval(cfg: Config, domain: Domain, result: Result) -> Result:
+    """Attach the block-bootstrap interval, or the reason there is not one."""
+    intervals = bootstrap_intervals(cfg, domain, result.threshold)
     result.interval = {m: i.as_dict() for m, i in intervals.items()}
     if not intervals["iou"].estimable:
         result.notes.append(intervals["iou"].reason)
@@ -214,7 +229,7 @@ def run(cfg: Config, experiment_ids: list[str] | None = None) -> dict:
             )
 
             for result in (honest, oracle):
-                rows.append(_with_interval(cfg, domain, result).as_row(forbidden))
+                rows.append(with_interval(cfg, domain, result).as_row(forbidden))
 
             events_seen[event.id] = {
                 "event": event.id,
@@ -285,30 +300,54 @@ def _interval_cell(row: dict, metric: str) -> str:
 
 
 def render_markdown(payload: dict) -> str:
+    """Render one results table.
+
+    The same renderer serves the baseline-only table of phase 2 and the merged
+    table of phase 3; ``title``, ``preamble`` and ``thresholds`` are what differ,
+    and every column, interval and footnote is identical between them by
+    construction rather than by careful copying.
+    """
     lines: list[str] = []
-    lines.append("# Baseline results — dNBR\n")
+    lines.append(f"# {payload.get('title', 'Baseline results — dNBR')}\n")
     lines.append(
-        f"Generated {payload['generated']} from `{payload['config']}` by "
-        "`python -m src.eval.baseline`. No model has been trained at this point: "
-        "these rows exist to validate the data chain and the evaluation "
-        "machinery before any deep learning is added to the picture.\n"
+        payload.get(
+            "preamble",
+            f"Generated {payload['generated']} from `{payload['config']}` by "
+            "`python -m src.eval.baseline`. No model has been trained at this "
+            "point: these rows exist to validate the data chain and the evaluation "
+            "machinery before any deep learning is added to the picture.",
+        )
+        + "\n"
     )
 
-    threshold = payload["threshold"]
     calibration = payload["calibration_domain"]
-    lines.append("## The decision threshold\n")
+    # Phase 2 froze one threshold; phase 3 freezes two, by the same call on the
+    # same pixels. Both render from the same records.
+    thresholds = payload.get("thresholds") or {"dnbr": payload["threshold"]}
+    lines.append("## The decision thresholds\n")
     lines.append(
-        f"dNBR ≥ **{threshold['value']:.4f}**, obtained by maximising "
-        f"{threshold['objective'].upper()} on {calibration['pixels']:,} usable pixels of "
-        f"the {calibration['event']} calibration blocks "
+        f"Calibrated on {calibration['pixels']:,} usable pixels of the "
+        f"{calibration['event']} calibration blocks "
         f"({', '.join(calibration['blocks'])}), of which "
         f"{calibration['burned_pixels']:,} are burned "
-        f"({calibration['prevalence']:.2%} prevalence). "
-        f"It reaches F1 = {threshold['objective_value']:.3f} there, and is then frozen: "
-        "every row below applies this same value, with no recalibration on any test "
-        "event. The U-Net's threshold will be produced by the same function on the "
-        "same pixels.\n"
+        f"({calibration['prevalence']:.2%} prevalence). Same pixels, same "
+        "objective, same function, both sides — then frozen, and applied unchanged "
+        "to every test event with no recalibration on any target.\n"
     )
+    lines.append("| Score | Threshold | Objective attained on the calibration blocks |")
+    lines.append("|---|---|---|")
+    for name, entry in thresholds.items():
+        lines.append(
+            f"| {name} | ≥ **{entry['value']:.4f}** | "
+            f"{entry['objective'].upper()} = {entry['objective_value']:.3f} |"
+        )
+    lines.append("")
+    if len(thresholds) > 1:
+        lines.append(
+            "The two objective values are not comparable to each other: each is the "
+            "best F1 its own score can reach on those pixels, and it is the "
+            "*procedure* that is shared, not the number it lands on.\n"
+        )
 
     lines.append("## Results\n")
     lines.append(
