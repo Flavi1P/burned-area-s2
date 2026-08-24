@@ -1,8 +1,8 @@
 # burned-area-s2
 
 Burned-area segmentation from Sentinel-2 pre/post pairs: a U-Net compared
-against a thresholded dNBR baseline, on three Copernicus EMS fires from the
-2026 French season.
+against a thresholded dNBR baseline and against a per-pixel control that sits
+between them, on three Copernicus EMS fires from the 2026 French season.
 
 The aim is to locate *where* a per-pixel index fails, and to see whether
 spatial context fixes those specific failures. So both methods get a single
@@ -12,10 +12,12 @@ pine), test on Biscarrosse (1 753 ha, pine) and Fontainebleau (832 ha,
 broadleaf). Comparing the two drops separates a size effect from a biome
 effect.
 
-**Status, 22 August 2026 — active development.** The data chain, the evaluation
-machinery and the U-Net are built and have run. Every number below is real and
-traceable to a script. Still to come: the few-shot adaptation curve (E3) and the
-error maps that check the clearcut hypothesis stated further down.
+**Status, 24 August 2026 — active development.** The data chain, the evaluation
+machinery, the U-Net and the per-pixel control are built and have run. Every
+number below is real and traceable to a script. Still to come: the few-shot
+adaptation curve (E3) and the error maps that check the clearcut hypothesis
+stated further down — which the per-pixel control has just made a much sharper
+question.
 
 ## Results
 
@@ -53,12 +55,15 @@ genuinely information a per-pixel index does not contain.
 Read that way, the three events do not tell one story. They tell two, and the
 split falls exactly on the biome boundary.
 
-**On pine, the network wins on information, not on calibration.** It beats the
-oracle on Saumos (0.863 vs 0.812) and on Biscarrosse (0.571 vs 0.526). No
-threshold on the index reaches those numbers, so the gain is not a calibration
-artefact — it is context the index cannot hold at any operating point. That the
-size control behaves like the training event says the effect survives a 1:23
-change of scale.
+**On pine, the network beats the oracle — but not because of context.** It
+beats the oracle on Saumos (0.863 vs 0.812) and on Biscarrosse (0.571 vs
+0.526), and no threshold on the index reaches those numbers, so the gain is not
+a calibration artefact. It was read here as spatial context, and that reading
+was wrong: a gradient-boosted classifier over the same eight channels with a
+receptive field of *one pixel* reproduces almost all of it (0.888 and 0.568).
+The control that shows this did not exist when the sentence was written; it does
+now, and what it leaves for context is a fraction of what this paragraph
+originally claimed. See [the control that was missing](#the-control-that-was-missing).
 
 **On broadleaf, the network loses to a recalibrated index.** Fontainebleau is
 where the honest baseline collapses — IoU 0.192, precision 0.966, recall 0.194,
@@ -72,9 +77,16 @@ against 0.830 for the network. On a biome it never saw, the network carries
 marginally *less* separable signal than the index it was supposed to replace.
 
 The operational reading is the one worth stating plainly: on this evidence,
-deploying this network to a new biome is not justified, and recalibrating the
+deploying *this network* to a new biome is not justified, and recalibrating the
 index there is. That is the answer to the question in the first paragraph, and
 it is not the answer the project was set up hoping for.
+
+It is also not the end of the question, because the oracle is not the ceiling it
+looks like. It refits the threshold using the target's labels, but a threshold
+can also be estimated from the *shape of the score's own histogram*, which needs
+no labels at all and is therefore deployable. Crossing that regime with the
+per-pixel control produces a method that beats the oracle on both transfer
+events without a single test label — again, below.
 
 ![Training curves for E1](outputs/training_e1.png)
 
@@ -95,6 +107,97 @@ where it should show up. The pine results are consistent with it. *Consistent
 with* is not *verified*: the error maps that would actually confirm the
 mechanism are task T4.3 and are not done, so the mechanism remains a hypothesis
 the numbers have not yet contradicted.
+
+## The control that was missing
+
+The comparison above has two rungs. The dNBR is two bands and one threshold;
+the U-Net is eight bands and a receptive field. When the network wins, *both*
+differences can explain it, and the pine paragraph above attributed the whole
+gain to the second one. Nothing in the design could tell them apart, because
+nothing sat in between.
+
+`src/eval/pixel_model.py` is the rung in between: gradient boosting over the
+same eight channels and the indices derived from them, **per pixel, with no
+spatial context at all**, fitted on the same train-role blocks, thresholded by
+the same function on the same calibration pixels, scored by the same code.
+
+At the same time the threshold stopped being a single regime. A threshold can
+be *frozen* on the training event, or *refitted on the target's labels* — the
+oracle, which nobody can deploy — or read off **the shape of the score's own
+histogram on the target event**, which consults no labels and therefore can be
+deployed. That third regime was simply absent from the original design.
+Crossing three methods with three regimes gives the grid in
+[`outputs/regimes.md`](outputs/regimes.md); the IoU column of it is:
+
+| Event | Method | frozen | unsupervised (Otsu) | oracle | AP |
+|---|---|---|---|---|---|
+| saumos | dNBR | 0.702 | 0.811 | *0.812* | 0.906 |
+| saumos | GB pixel | **0.881** | 0.797 | *0.893* | **0.981** |
+| saumos | U-Net | 0.863 | 0.857 | *0.875* | 0.976 |
+| biscarrosse | dNBR | 0.481 | 0.501 | *0.526* | 0.641 |
+| biscarrosse | GB pixel | 0.561 | 0.558 | *0.568* | 0.675 |
+| biscarrosse | U-Net | **0.571** | 0.533 | *0.571* | **0.702** |
+| fontainebleau | dNBR | 0.192 | 0.466 | *0.624* | 0.839 |
+| fontainebleau | GB pixel | 0.487 | **0.696** | *0.701* | **0.887** |
+| fontainebleau | U-Net | 0.556 | 0.599 | *0.621* | 0.830 |
+
+Italic oracle cells are instruments, not results: they need the answer to
+produce the answer. Bold marks the best *deployable* cell of each event.
+
+**Most of what was read as spatial context is not spatial context.** A model
+that cannot see a neighbouring pixel beats the U-Net on Saumos (0.881 against
+0.863, and 0.888 for the change-only feature set) and comes within 0.010 of it
+on Biscarrosse. The eight channels were doing the work, not the receptive
+field. What survives for context is narrow and worth stating exactly: on
+Biscarrosse the U-Net's threshold-free AP is 0.702 against the booster's 0.675,
+so on the clearcut event — and only there — the network ranks pixels better
+than anything per-pixel can. That is the clearcut hypothesis, alive — but what
+it has to explain is now a 0.027 gap in AP on one event, not the 0.051 and
+0.045 IoU margins over the oracle that this README credited to it. T4.3's error
+maps have a sharper and much smaller question to answer.
+
+**A deployable method beats the oracle on the unseen biome.** The booster
+thresholded by Otsu reaches 0.696 on Fontainebleau against the dNBR oracle's
+0.624, using no test label anywhere — and it lands within 0.005 of its *own*
+oracle, so for that score the threshold problem is closed rather than reduced.
+The gain is not the threshold trick: the same trick on the dNBR reaches only
+0.466 and on the U-Net only 0.599. It is the score. AP says so independently —
+0.887 for the booster against 0.839 for the index and 0.830 for the network, on
+a biome none of them was trained on.
+
+**The unsupervised regime is not free, and the table shows where it costs.** It
+is a large gain exactly where the frozen threshold was badly mis-set
+(Fontainebleau dNBR, 0.192 → 0.466) and a loss where it was not (Saumos GB,
+0.881 → 0.797; Biscarrosse U-Net, 0.571 → 0.533). It assumes the burned mode is
+present and separable in the histogram, and on a scene with little burn in it
+the estimator will happily split the background against itself. Every Otsu row
+trades precision for recall, which is the same statement read off the
+confusion matrix.
+
+**Both unsupervised estimators are reported, including the bad one.** Otsu and
+a two-component Gaussian mixture were tried on the test events before either was
+written into `config.yaml`; Otsu won. Publishing only Otsu would be a selection
+made on the test events with the evidence removed, so the mixture stays in every
+table — it is catastrophic everywhere (Fontainebleau 0.274, recall 1.000: it
+calls almost the whole scene burned), and that is part of the result.
+
+**What this grid does not have is any more statistical support than the last
+one.** Three methods times four regimes times three events is thirty-six cells
+over two transfer events that still cannot carry a bootstrap interval. Every
+difference read off it is a point estimate, the comparisons multiply faster than
+the evidence does, and choosing Otsu after seeing test IoU is a selection this
+paragraph exists to declare rather than to excuse. The grid reframes the
+question; it does not settle it.
+
+**The asymmetry that denies the U-Net an oracle row was dropped here, on
+purpose.** `src/model/evaluate.py` still refuses it, and `outputs/results.md` is
+unchanged — with two methods and one question, granting the network an oracle
+would have dissolved the decomposition the oracle exists to provide. With three
+methods and three regimes the decomposition *is* the grid, and a missing cell in
+it is a hole rather than a guard. What keeps an oracle number from being read as
+a result is that every one of them is marked undeployable in the table and in
+`regimes.json`, and a test asserts it.
+
 
 ## How the evaluation is set up
 
@@ -160,6 +263,9 @@ python -m src.model.train --experiment E1         # ~10 min on 16 CPU threads
 python -m src.model.predict --experiment E1       # one probability raster per event
 python -m src.model.evaluate                      # both methods, one table
 
+python -m src.eval.pixel_model                     # per-pixel control, both feature sets
+python -m src.eval.regimes                        # methods x threshold regimes
+
 python -m src.viz.quicklook --event saumos        # before / after / label
 python -m src.viz.evaluation                      # PR curves and the split map
 python -m src.viz.training --experiment E1        # loss and model-selection curves
@@ -179,7 +285,8 @@ config.yaml     events, experiments, evaluation settings. No event name,
                 EMS code or date lives anywhere else.
 src/data/       STAC access, EMS labels, target grids, stacks and validity
 src/model/      tiles as tensors, U-Net, training loop, inference, scoring
-src/eval/       dNBR, thresholds, metrics, blocks, bootstrap, the results table
+src/eval/       dNBR, the per-pixel control, thresholds and their three
+                regimes, metrics, blocks, bootstrap, the results tables
 src/viz/        figures
 outputs/        versioned figures, tables and frozen thresholds, never rasters
 tests/          guards on the evaluation setup
@@ -195,7 +302,14 @@ Phase 3 adds the ones that guard the network: a training tile can't touch
 calibration ground, normalisation statistics can't come from a test event, a
 clouded pixel can't contribute a gradient, the two methods can't be scored on
 domains that merely resemble each other, and the network can't have an oracle
-row of its own.
+row in the two-method table. The regime grid adds its own, because more methods
+and more regimes mean more ways to look fair without being fair: a per-event
+threshold can't reach the file that records the frozen one, a label-free
+threshold has to be label-free by signature and not by assertion, the pixel
+model can't be fitted on a test event even if `config.yaml` says to, no method
+can be scored on a different pixel count from the others, no oracle cell can be
+marked deployable, and the losing unsupervised estimator can't quietly drop out
+of the table.
 
 ## Data
 

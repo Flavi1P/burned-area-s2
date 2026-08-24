@@ -1,0 +1,199 @@
+{
+  "estimator": "sklearn.HistGradientBoostingClassifier",
+  "runs": [
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "pre_nbr",
+        "post_nbr",
+        "dndvi",
+        "pre_ndvi",
+        "post_ndvi",
+        "dnbr2",
+        "post_nbr2",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22",
+        "post_red",
+        "post_nir08",
+        "post_swir16",
+        "post_swir22"
+      ],
+      "feature_set": "full",
+      "rasters": [
+        "saumos/gb_prob_full.tif",
+        "biscarrosse/gb_prob_full.tif",
+        "fontainebleau/gb_prob_full.tif"
+      ],
+      "importance": [
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.33078297853774646,
+          "sd": 0.004703145089915616
+        },
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.31222172606062204,
+          "sd": 0.004957241306997863
+        },
+        {
+          "feature": "post_nir08",
+          "drop_in_ap": 0.056409943649944484,
+          "sd": 0.00031950742971673666
+        },
+        {
+          "feature": "post_ndvi",
+          "drop_in_ap": 0.04881524834842129,
+          "sd": 0.0022602478180785745
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.027029743068663608,
+          "sd": 0.0018070447941804825
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.01806349168804307,
+          "sd": 0.00028474660947152663
+        },
+        {
+          "feature": "post_swir16",
+          "drop_in_ap": 0.01604136365089463,
+          "sd": 0.0018219214641417214
+        },
+        {
+          "feature": "post_red",
+          "drop_in_ap": 0.007122883808366416,
+          "sd": 0.0021326228212171627
+        },
+        {
+          "feature": "post_swir22",
+          "drop_in_ap": 0.004734726301697319,
+          "sd": 0.0006692958710930076
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.0035838369902128444,
+          "sd": 0.00022100774234896234
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.0019299159961866004,
+          "sd": 0.0015028048012571
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.00040798888928395005,
+          "sd": 0.0008587287939954574
+        },
+        {
+          "feature": "post_nbr2",
+          "drop_in_ap": -0.00033811305463449237,
+          "sd": 0.0009580522196226293
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": -0.0009379160932636946,
+          "sd": 0.0008540265567159561
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": -0.0009658029252445818,
+          "sd": 0.0001361100096514313
+        },
+        {
+          "feature": "post_nbr",
+          "drop_in_ap": -0.008036670995552497,
+          "sd": 0.0020502996805555006
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "dndvi",
+        "dnbr2",
+        "pre_nbr",
+        "pre_ndvi",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22"
+      ],
+      "feature_set": "change_only",
+      "rasters": [
+        "saumos/gb_prob_change_only.tif",
+        "biscarrosse/gb_prob_change_only.tif",
+        "fontainebleau/gb_prob_change_only.tif"
+      ],
+      "importance": [
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.7743504754048652,
+          "sd": 0.004658343869140336
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.616410645370678,
+          "sd": 0.0052755226766571656
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.3773890671582501,
+          "sd": 0.00447324955803142
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.062161462427478664,
+          "sd": 0.0016965334212507856
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.020752375627382302,
+          "sd": 0.002561996310467598
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.014155083731602422,
+          "sd": 0.0005399403684436863
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": -0.006734448417189694,
+          "sd": 0.0007554207740534168
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": -0.007177483931607109,
+          "sd": 0.001430203108489344
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": -0.021110056405440763,
+          "sd": 0.0010286938731248053
+        }
+      ]
+    }
+  ]
+}

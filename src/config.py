@@ -155,6 +155,10 @@ class Config:
         return self.raw["model"]
 
     @property
+    def pixel_model(self) -> dict[str, Any]:
+        return self.raw["pixel_model"]
+
+    @property
     def band_assets(self) -> list[str]:
         """STAC asset keys of the four reflectance bands, in channel order."""
         return list(self.project["bands"].keys())

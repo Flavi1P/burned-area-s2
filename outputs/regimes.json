@@ -1,0 +1,3506 @@
+{
+  "generated": "2026-08-24T15:22:44",
+  "config": "config.yaml",
+  "estimator": "sklearn.HistGradientBoostingClassifier",
+  "min_blocks_for_interval": 4,
+  "superblock_km": 17.5,
+  "methods": [
+    {
+      "name": "dNBR",
+      "score": "dnbr",
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "name": "GB pixel",
+      "score": "gb",
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "name": "GB pixel (change-only)",
+      "score": "gb_change_only",
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "name": "U-Net",
+      "score": "unet",
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    }
+  ],
+  "frozen_thresholds": {
+    "dNBR": {
+      "value": 0.5762747526168823,
+      "objective": "f1",
+      "score_name": "dnbr",
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "n_pixels": 772271,
+      "n_positive": 16653,
+      "objective_value": 0.3831268344632328,
+      "frozen": true,
+      "regime": "frozen",
+      "uses_labels": true
+    },
+    "GB pixel": {
+      "value": 0.884113073348999,
+      "objective": "f1",
+      "score_name": "gb",
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "n_pixels": 772271,
+      "n_positive": 16653,
+      "objective_value": 0.946218587715633,
+      "frozen": true,
+      "regime": "frozen",
+      "uses_labels": true
+    },
+    "GB pixel (change-only)": {
+      "value": 0.8354071378707886,
+      "objective": "f1",
+      "score_name": "gb_change_only",
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "n_pixels": 772271,
+      "n_positive": 16653,
+      "objective_value": 0.9420174741858619,
+      "frozen": true,
+      "regime": "frozen",
+      "uses_labels": true
+    },
+    "U-Net": {
+      "value": 0.8852156400680542,
+      "objective": "f1",
+      "score_name": "unet",
+      "calibrated_on": "saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "n_pixels": 772271,
+      "n_positive": 16653,
+      "objective_value": 0.9397120132462079,
+      "frozen": true,
+      "regime": "frozen",
+      "uses_labels": true
+    }
+  },
+  "regimes": [
+    "frozen",
+    "unsupervised",
+    "oracle"
+  ],
+  "unsupervised_estimators": [
+    "otsu",
+    "gmm"
+  ],
+  "rows": [
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "dNBR",
+      "threshold": 0.57627,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.7023611121045441,
+      "f1": 0.8251611330997218,
+      "precision": 0.9175730731853181,
+      "recall": 0.7496602690363856,
+      "average_precision": 0.9056194207540009,
+      "kappa": 0.813849726888545,
+      "predicted_area_ha": 4280.64,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": -958.8000000000002,
+      "area_error_pct": -18.29966561311896,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 98195,
+        "fp": 8821,
+        "fn": 32791,
+        "tn": 1798712
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.7023611121045441,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8251611330997218,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9175730731853181,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.7496602690363856,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "dNBR",
+      "threshold": 0.39289,
+      "threshold_source": "unsupervised (otsu): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.8110710386129769,
+      "f1": 0.8956810874013447,
+      "precision": 0.8589359048032853,
+      "recall": 0.9357106866382667,
+      "average_precision": 0.9056194207540009,
+      "kappa": 0.8877735218840203,
+      "predicted_area_ha": 5707.76,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 468.3199999999997,
+      "area_error_pct": 8.938359824714086,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 122565,
+        "fp": 20129,
+        "fn": 8421,
+        "tn": 1787404
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8110710386129769,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8956810874013447,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8589359048032853,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9357106866382667,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "dNBR",
+      "threshold": 0.20419,
+      "threshold_source": "unsupervised (gmm): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.5906759672346961,
+      "f1": 0.7426729005801908,
+      "precision": 0.5954802468168643,
+      "recall": 0.9865252775105736,
+      "average_precision": 0.9056194207540009,
+      "kappa": 0.7189916722006426,
+      "predicted_area_ha": 8680.12,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 3440.6800000000003,
+      "area_error_pct": 65.6688501061182,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 129221,
+        "fp": 87782,
+        "fn": 1765,
+        "tn": 1719751
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5906759672346961,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7426729005801908,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5954802468168643,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9865252775105736,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "dNBR",
+      "threshold": 0.40574,
+      "threshold_source": "oracle: saumos itself -- not available in production",
+      "iou": 0.8124002324292193,
+      "f1": 0.8964909823922641,
+      "precision": 0.8665189638959336,
+      "recall": 0.9286106912189089,
+      "average_precision": 0.9056194207540009,
+      "kappa": 0.8887110713090579,
+      "predicted_area_ha": 5614.88,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 375.4399999999996,
+      "area_error_pct": 7.165651290977653,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 121635,
+        "fp": 18737,
+        "fn": 9351,
+        "tn": 1788796
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8124002324292193,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8964909823922641,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8665189638959336,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9286106912189089,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel",
+      "threshold": 0.88411,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.8814988606380427,
+      "f1": 0.9370176927336688,
+      "precision": 0.9798201981319936,
+      "recall": 0.8977982379796314,
+      "average_precision": 0.9807284067887182,
+      "kappa": 0.9326667239572399,
+      "predicted_area_ha": 4800.84,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": -438.60000000000036,
+      "area_error_pct": -8.371123631533147,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 117599,
+        "fp": 2422,
+        "fn": 13387,
+        "tn": 1805111
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8814988606380427,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9370176927336688,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9798201981319936,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8977982379796314,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel",
+      "threshold": 0.46969,
+      "threshold_source": "unsupervised (otsu): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.7969113655508064,
+      "f1": 0.8869790473015675,
+      "precision": 0.8135048026701317,
+      "recall": 0.9750431343807735,
+      "average_precision": 0.9807284067887182,
+      "kappa": 0.8779902274840603,
+      "predicted_area_ha": 6279.84,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 1040.3999999999996,
+      "area_error_pct": 19.85708396317163,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 127717,
+        "fp": 29279,
+        "fn": 3269,
+        "tn": 1778254
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.7969113655508064,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8869790473015675,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8135048026701317,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9750431343807735,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel",
+      "threshold": 0.02924,
+      "threshold_source": "unsupervised (gmm): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.28928899463287777,
+      "f1": 0.44875740945148174,
+      "precision": 0.2894670986630406,
+      "recall": 0.9978776357778694,
+      "average_precision": 0.9807284067887182,
+      "kappa": 0.38425629429858893,
+      "predicted_area_ha": 18061.88,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 12822.44,
+      "area_error_pct": 244.7292077015864,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 130708,
+        "fp": 320839,
+        "fn": 278,
+        "tn": 1486694
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.28928899463287777,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.44875740945148174,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.2894670986630406,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9978776357778694,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel",
+      "threshold": 0.82143,
+      "threshold_source": "oracle: saumos itself -- not available in production",
+      "iou": 0.8925010163728425,
+      "f1": 0.9431973971495193,
+      "precision": 0.9656192768771843,
+      "recall": 0.92179316873559,
+      "average_precision": 0.9807284067887182,
+      "kappa": 0.9391834340243214,
+      "predicted_area_ha": 5001.64,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": -237.80000000000018,
+      "area_error_pct": -4.538652985815281,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 120742,
+        "fp": 4299,
+        "fn": 10244,
+        "tn": 1803234
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8925010163728425,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9431973971495193,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9656192768771843,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.92179316873559,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.83541,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.8881043191423564,
+      "f1": 0.9407364944176017,
+      "precision": 0.96151301367133,
+      "recall": 0.9208388682759989,
+      "average_precision": 0.9796815332207626,
+      "kappa": 0.9365412304652638,
+      "predicted_area_ha": 5017.8,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": -221.64000000000033,
+      "area_error_pct": -4.23022307727544,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 120617,
+        "fp": 4828,
+        "fn": 10369,
+        "tn": 1802705
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8881043191423564,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9407364944176017,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.96151301367133,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9208388682759989,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.48316,
+      "threshold_source": "unsupervised (otsu): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.8709979302289044,
+      "f1": 0.9310517303697321,
+      "precision": 0.8921946611622293,
+      "recall": 0.9734475440123372,
+      "average_precision": 0.9796815332207626,
+      "kappa": 0.9258211600285186,
+      "predicted_area_ha": 5716.6,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 477.15999999999985,
+      "area_error_pct": 9.107080145969794,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 127508,
+        "fp": 15407,
+        "fn": 3478,
+        "tn": 1792126
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8709979302289044,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9310517303697321,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8921946611622293,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9734475440123372,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.03,
+      "threshold_source": "unsupervised (gmm): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.2918363064945269,
+      "f1": 0.4518162324860519,
+      "precision": 0.291993380485833,
+      "recall": 0.9981601087139084,
+      "average_precision": 0.9796815332207626,
+      "kappa": 0.3878087477445605,
+      "predicted_area_ha": 17910.68,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 12671.24,
+      "area_error_pct": 241.84340311178292,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 130745,
+        "fp": 317022,
+        "fn": 241,
+        "tn": 1490511
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.2918363064945269,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.4518162324860519,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.291993380485833,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9981601087139084,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.70441,
+      "threshold_source": "oracle: saumos itself -- not available in production",
+      "iou": 0.8987556847349052,
+      "f1": 0.9466785979475658,
+      "precision": 0.9443663630355013,
+      "recall": 0.9490021834394515,
+      "average_precision": 0.9796815332207626,
+      "kappa": 0.9428044221928439,
+      "predicted_area_ha": 5265.16,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 25.719999999999345,
+      "area_error_pct": 0.49089215641364997,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 124306,
+        "fp": 7323,
+        "fn": 6680,
+        "tn": 1800210
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8987556847349052,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9466785979475658,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9443663630355013,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9490021834394515,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "U-Net",
+      "threshold": 0.88522,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.8634064809878536,
+      "f1": 0.9266968745650527,
+      "precision": 0.938746416430373,
+      "recall": 0.9149527430412411,
+      "average_precision": 0.9764800045534768,
+      "kappa": 0.9214578942724966,
+      "predicted_area_ha": 5106.64,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": -132.80000000000018,
+      "area_error_pct": -2.5346220206739685,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 119846,
+        "fp": 7820,
+        "fn": 11140,
+        "tn": 1799713
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8634064809878536,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9266968745650527,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.938746416430373,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9149527430412411,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "U-Net",
+      "threshold": 0.49207,
+      "threshold_source": "unsupervised (otsu): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.857281429995384,
+      "f1": 0.9231572729368372,
+      "precision": 0.8738663175265605,
+      "recall": 0.9783411967691203,
+      "average_precision": 0.9764800045534768,
+      "kappa": 0.9172504909876209,
+      "predicted_area_ha": 5865.84,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 626.3999999999996,
+      "area_error_pct": 11.95547615775731,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 128149,
+        "fp": 18497,
+        "fn": 2837,
+        "tn": 1789036
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.857281429995384,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9231572729368372,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8738663175265605,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9783411967691203,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "U-Net",
+      "threshold": 0.05398,
+      "threshold_source": "unsupervised (gmm): saumos, the 1,938,519 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.5182567866630244,
+      "f1": 0.6826997793991103,
+      "precision": 0.5184189266252693,
+      "recall": 0.9993968821095385,
+      "average_precision": 0.9764800045534768,
+      "kappa": 0.6517079436717896,
+      "predicted_area_ha": 10100.48,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 4861.039999999999,
+      "area_error_pct": 92.77785412181451,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 130907,
+        "fp": 121605,
+        "fn": 79,
+        "tn": 1685928
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5182567866630244,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6826997793991103,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5184189266252693,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9993968821095385,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E1",
+      "event": "saumos",
+      "method": "U-Net",
+      "threshold": 0.76059,
+      "threshold_source": "oracle: saumos itself -- not available in production",
+      "iou": 0.8751692828022707,
+      "f1": 0.9334296277447649,
+      "precision": 0.9153981651376146,
+      "recall": 0.9521857297726475,
+      "average_precision": 0.9764800045534768,
+      "kappa": 0.9285034333101962,
+      "predicted_area_ha": 5450.0,
+      "label_area_ha": 5239.4400000000005,
+      "area_error_ha": 210.5599999999995,
+      "area_error_pct": 4.018750095430036,
+      "prevalence": 0.06757013988513912,
+      "domain_pixels": 1938519,
+      "footprint_pixels": 6216067,
+      "confusion": {
+        "tp": 124723,
+        "fp": 11527,
+        "fn": 6263,
+        "tn": 1796006
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.8751692828022707,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.9334296277447649,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9153981651376146,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9521857297726475,
+          "n_blocks": 4,
+          "n_burned_blocks": 3,
+          "estimable": false,
+          "reason": "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "3 of the 4 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "dNBR",
+      "threshold": 0.57627,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.4808240476807463,
+      "f1": 0.6494006474757197,
+      "precision": 0.6232653832427099,
+      "recall": 0.6778236946048997,
+      "average_precision": 0.6409625599406539,
+      "kappa": 0.6287757719512328,
+      "predicted_area_ha": 1905.32,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 153.3599999999999,
+      "area_error_pct": 8.753624511975152,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 29688,
+        "fp": 17945,
+        "fn": 14111,
+        "tn": 759645
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.4808240476807463,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6494006474757197,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6232653832427099,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.6778236946048997,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "dNBR",
+      "threshold": 0.3214,
+      "threshold_source": "unsupervised (otsu): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.5014576197070184,
+      "f1": 0.6679610707958158,
+      "precision": 0.5172660067660694,
+      "recall": 0.9425557661133815,
+      "average_precision": 0.6409625599406539,
+      "kappa": 0.6434068885259066,
+      "predicted_area_ha": 3192.4,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 1440.44,
+      "area_error_pct": 82.21877211808489,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 41283,
+        "fp": 38527,
+        "fn": 2516,
+        "tn": 739063
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5014576197070184,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6679610707958158,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5172660067660694,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9425557661133815,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "dNBR",
+      "threshold": 0.1283,
+      "threshold_source": "unsupervised (gmm): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.4031193035973364,
+      "f1": 0.5746044581723216,
+      "precision": 0.4048286167927524,
+      "recall": 0.9896344665403319,
+      "average_precision": 0.6409625599406539,
+      "kappa": 0.5397718253986415,
+      "predicted_area_ha": 4282.8,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 2530.84,
+      "area_error_pct": 144.4576360190872,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 43345,
+        "fp": 63725,
+        "fn": 454,
+        "tn": 713865
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.4031193035973364,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.5746044581723216,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.4048286167927524,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9896344665403319,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "dNBR",
+      "threshold": 0.44368,
+      "threshold_source": "oracle: biscarrosse itself -- not available in production",
+      "iou": 0.5257112588689555,
+      "f1": 0.6891359761724211,
+      "precision": 0.5744356779480306,
+      "recall": 0.8610698874403525,
+      "average_precision": 0.6409625599406539,
+      "kappa": 0.6678908314080292,
+      "predicted_area_ha": 2626.16,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 874.1999999999998,
+      "area_error_pct": 49.89839950683805,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 37714,
+        "fp": 27940,
+        "fn": 6085,
+        "tn": 749650
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5257112588689555,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6891359761724211,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5744356779480306,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8610698874403525,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel",
+      "threshold": 0.88411,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.5612994911446952,
+      "f1": 0.7190157869495855,
+      "precision": 0.6292527495117689,
+      "recall": 0.8386492842302335,
+      "average_precision": 0.6745664226299725,
+      "kappa": 0.7007847066548817,
+      "predicted_area_ha": 2334.96,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 583.0,
+      "area_error_pct": 33.277015456973906,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 36732,
+        "fp": 21642,
+        "fn": 7067,
+        "tn": 755948
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5612994911446952,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7190157869495855,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6292527495117689,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8386492842302335,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel",
+      "threshold": 0.46968,
+      "threshold_source": "unsupervised (otsu): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.5583563489390367,
+      "f1": 0.7165964951715671,
+      "precision": 0.5766522888548768,
+      "recall": 0.9462316491244093,
+      "average_precision": 0.6745664226299725,
+      "kappa": 0.69648441615332,
+      "predicted_area_ha": 2874.8,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 1122.8400000000001,
+      "area_error_pct": 64.09050434941437,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 41444,
+        "fp": 30426,
+        "fn": 2355,
+        "tn": 747164
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5583563489390367,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7165964951715671,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5766522888548768,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9462316491244093,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel",
+      "threshold": 0.00693,
+      "threshold_source": "unsupervised (gmm): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.3103942652329749,
+      "f1": 0.4737417943107221,
+      "precision": 0.31053973258348777,
+      "recall": 0.9984931162811936,
+      "average_precision": 0.6745664226299725,
+      "kappa": 0.4271416704898739,
+      "predicted_area_ha": 5633.16,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 3881.2,
+      "area_error_pct": 221.53473823603278,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 43733,
+        "fp": 97096,
+        "fn": 66,
+        "tn": 680494
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.3103942652329749,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.4737417943107221,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.31053973258348777,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9984931162811936,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel",
+      "threshold": 0.71317,
+      "threshold_source": "oracle: biscarrosse itself -- not available in production",
+      "iou": 0.5683063243940915,
+      "f1": 0.7247389308509665,
+      "precision": 0.6044631553257371,
+      "recall": 0.9047695152857371,
+      "average_precision": 0.6745664226299725,
+      "kappa": 0.705938618589432,
+      "predicted_area_ha": 2622.36,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 870.4000000000001,
+      "area_error_pct": 49.68149957761594,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 39628,
+        "fp": 25931,
+        "fn": 4171,
+        "tn": 751659
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5683063243940915,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7247389308509665,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6044631553257371,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9047695152857371,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.83541,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.5683269854913526,
+      "f1": 0.7247557311057774,
+      "precision": 0.6182630144936883,
+      "recall": 0.8755679353409895,
+      "average_precision": 0.67474436246692,
+      "kappa": 0.706403693455727,
+      "predicted_area_ha": 2481.08,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 729.1199999999999,
+      "area_error_pct": 41.61738852485215,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 38349,
+        "fp": 23678,
+        "fn": 5450,
+        "tn": 753912
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5683269854913526,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7247557311057774,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6182630144936883,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8755679353409895,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.47144,
+      "threshold_source": "unsupervised (otsu): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.5595389313802329,
+      "f1": 0.7175696869394934,
+      "precision": 0.5782292975841363,
+      "recall": 0.9453868809790178,
+      "average_precision": 0.67474436246692,
+      "kappa": 0.6975561394086706,
+      "predicted_area_ha": 2864.4,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 1112.44,
+      "area_error_pct": 63.496883490490646,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 41407,
+        "fp": 30203,
+        "fn": 2392,
+        "tn": 747387
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5595389313802329,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7175696869394934,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5782292975841363,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9453868809790178,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.00717,
+      "threshold_source": "unsupervised (gmm): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.3102604129709785,
+      "f1": 0.4735858763640302,
+      "precision": 0.3104234111432953,
+      "recall": 0.998310463709217,
+      "average_precision": 0.67474436246692,
+      "kappa": 0.42696963852675585,
+      "predicted_area_ha": 5634.24,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 3882.2799999999997,
+      "area_error_pct": 221.59638347907486,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 43725,
+        "fp": 97131,
+        "fn": 74,
+        "tn": 680459
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.3102604129709785,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.4735858763640302,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.3104234111432953,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.998310463709217,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.74522,
+      "threshold_source": "oracle: biscarrosse itself -- not available in production",
+      "iou": 0.569223896942275,
+      "f1": 0.7254846144663502,
+      "precision": 0.6067862738471936,
+      "recall": 0.9019155688486038,
+      "average_precision": 0.67474436246692,
+      "kappa": 0.7067913776200804,
+      "predicted_area_ha": 2604.08,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 852.1199999999999,
+      "area_error_pct": 48.63809676019999,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 39503,
+        "fp": 25599,
+        "fn": 4296,
+        "tn": 751991
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.569223896942275,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7254846144663502,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6067862738471936,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9019155688486038,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "U-Net",
+      "threshold": 0.88522,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.5707010318409282,
+      "f1": 0.7266832073982181,
+      "precision": 0.617538535260762,
+      "recall": 0.8826913856480741,
+      "average_precision": 0.7016848314857727,
+      "kappa": 0.7083851039731532,
+      "predicted_area_ha": 2504.2000000000003,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 752.2400000000002,
+      "area_error_pct": 42.9370533573826,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 38661,
+        "fp": 23944,
+        "fn": 5138,
+        "tn": 753646
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5707010318409282,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7266832073982181,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.617538535260762,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8826913856480741,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "U-Net",
+      "threshold": 0.48259,
+      "threshold_source": "unsupervised (otsu): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.533434071515644,
+      "f1": 0.6957378623893475,
+      "precision": 0.5458408045528962,
+      "recall": 0.9591314870202516,
+      "average_precision": 0.7016848314857727,
+      "kappa": 0.673550210387869,
+      "predicted_area_ha": 3078.48,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 1326.52,
+      "area_error_pct": 75.71634055572045,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 42009,
+        "fp": 34953,
+        "fn": 1790,
+        "tn": 742637
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.533434071515644,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6957378623893475,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.5458408045528962,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9591314870202516,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "U-Net",
+      "threshold": 0.04783,
+      "threshold_source": "unsupervised (gmm): biscarrosse, the 821,389 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.37348439504061565,
+      "f1": 0.5438494916858102,
+      "precision": 0.37386801335273473,
+      "recall": 0.997260211420352,
+      "average_precision": 0.7016848314857727,
+      "kappa": 0.5054921099683582,
+      "predicted_area_ha": 4673.2,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 2921.24,
+      "area_error_pct": 166.74124980022376,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 43679,
+        "fp": 73151,
+        "fn": 120,
+        "tn": 704439
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.37348439504061565,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.5438494916858102,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.37386801335273473,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.997260211420352,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "biscarrosse",
+      "method": "U-Net",
+      "threshold": 0.90098,
+      "threshold_source": "oracle: biscarrosse itself -- not available in production",
+      "iou": 0.5712190376412483,
+      "f1": 0.727102999590402,
+      "precision": 0.6238109247817986,
+      "recall": 0.8713897577570264,
+      "average_precision": 0.7016848314857727,
+      "kappa": 0.7090177383014353,
+      "predicted_area_ha": 2447.28,
+      "label_area_ha": 1751.96,
+      "area_error_ha": 695.3200000000002,
+      "area_error_pct": 39.68812073335008,
+      "prevalence": 0.0533230905210564,
+      "domain_pixels": 821389,
+      "footprint_pixels": 851370,
+      "confusion": {
+        "tp": 38166,
+        "fp": 23016,
+        "fn": 5633,
+        "tn": 754574
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5712190376412483,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.727102999590402,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6238109247817986,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8713897577570264,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "dNBR",
+      "threshold": 0.57627,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.19234445187804644,
+      "f1": 0.322632359424472,
+      "precision": 0.9659227261819054,
+      "recall": 0.19365858352578907,
+      "average_precision": 0.8392890170651659,
+      "kappa": 0.31531035491744785,
+      "predicted_area_ha": 166.68,
+      "label_area_ha": 831.36,
+      "area_error_ha": -664.6800000000001,
+      "area_error_pct": -79.95092378752886,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 4025,
+        "fp": 142,
+        "fn": 16759,
+        "tn": 628244
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.19234445187804644,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.322632359424472,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9659227261819054,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.19365858352578907,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "dNBR",
+      "threshold": 0.17272,
+      "threshold_source": "unsupervised (otsu): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.46640199637023594,
+      "f1": 0.6361175141942171,
+      "precision": 0.4687948922585794,
+      "recall": 0.9891743648960739,
+      "average_precision": 0.8392890170651659,
+      "kappa": 0.6195912109884861,
+      "predicted_area_ha": 1754.2,
+      "label_area_ha": 831.36,
+      "area_error_ha": 922.84,
+      "area_error_pct": 111.00365665896844,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 20559,
+        "fp": 23296,
+        "fn": 225,
+        "tn": 605090
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.46640199637023594,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6361175141942171,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.4687948922585794,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9891743648960739,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "dNBR",
+      "threshold": 0.05202,
+      "threshold_source": "unsupervised (gmm): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.2578227747586789,
+      "f1": 0.4099508769160962,
+      "precision": 0.2578355708861702,
+      "recall": 0.9998075442648191,
+      "average_precision": 0.8392890170651659,
+      "kappa": 0.3783034706290494,
+      "predicted_area_ha": 3223.76,
+      "label_area_ha": 831.36,
+      "area_error_ha": 2392.4,
+      "area_error_pct": 287.76943802925325,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 20780,
+        "fp": 59814,
+        "fn": 4,
+        "tn": 568572
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.2578227747586789,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.4099508769160962,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.2578355708861702,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9998075442648191,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "dNBR",
+      "threshold": 0.28425,
+      "threshold_source": "oracle: fontainebleau itself -- not available in production",
+      "iou": 0.6240357142857142,
+      "f1": 0.7684999890044641,
+      "precision": 0.7077240876503706,
+      "recall": 0.8406947652040031,
+      "average_precision": 0.8392890170651659,
+      "kappa": 0.7601618556664231,
+      "predicted_area_ha": 987.5600000000001,
+      "label_area_ha": 831.36,
+      "area_error_ha": 156.20000000000005,
+      "area_error_pct": 18.788491147036186,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 17473,
+        "fp": 7216,
+        "fn": 3311,
+        "tn": 621170
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.6240357142857142,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7684999890044641,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.7077240876503706,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8406947652040031,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "2 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel",
+      "threshold": 0.88411,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.4872948159139386,
+      "f1": 0.6552766952455183,
+      "precision": 0.9307412983792401,
+      "recall": 0.5056293302540416,
+      "average_precision": 0.8867895549420679,
+      "kappa": 0.6473272216843666,
+      "predicted_area_ha": 451.64,
+      "label_area_ha": 831.36,
+      "area_error_ha": -379.72,
+      "area_error_pct": -45.674557351809085,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 10509,
+        "fp": 782,
+        "fn": 10275,
+        "tn": 627604
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.4872948159139386,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6552766952455183,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9307412983792401,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.5056293302540416,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel",
+      "threshold": 0.41151,
+      "threshold_source": "unsupervised (otsu): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.696387363730405,
+      "f1": 0.8210239932453034,
+      "precision": 0.8009426623346909,
+      "recall": 0.8421381832178599,
+      "average_precision": 0.8867895549420679,
+      "kappa": 0.8149508690309912,
+      "predicted_area_ha": 874.12,
+      "label_area_ha": 831.36,
+      "area_error_ha": 42.75999999999999,
+      "area_error_pct": 5.143379522709775,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 17503,
+        "fp": 4350,
+        "fn": 3281,
+        "tn": 624036
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.696387363730405,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8210239932453034,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8009426623346909,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8421381832178599,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel",
+      "threshold": 0.00583,
+      "threshold_source": "unsupervised (gmm): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.273692390774621,
+      "f1": 0.4297621509824199,
+      "precision": 0.2737104167764371,
+      "recall": 0.9997594303310239,
+      "average_precision": 0.8867895549420679,
+      "kappa": 0.3995790857544807,
+      "predicted_area_ha": 3036.64,
+      "label_area_ha": 831.36,
+      "area_error_ha": 2205.2799999999997,
+      "area_error_pct": 265.261739799846,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 20779,
+        "fp": 55137,
+        "fn": 5,
+        "tn": 573249
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.273692390774621,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.4297621509824199,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.2737104167764371,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9997594303310239,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel",
+      "threshold": 0.43817,
+      "threshold_source": "oracle: fontainebleau itself -- not available in production",
+      "iou": 0.7012765265468738,
+      "f1": 0.8244121582871344,
+      "precision": 0.8189327763007975,
+      "recall": 0.8299653579676675,
+      "average_precision": 0.8867895549420679,
+      "kappa": 0.8185644011266715,
+      "predicted_area_ha": 842.5600000000001,
+      "label_area_ha": 831.36,
+      "area_error_ha": 11.200000000000045,
+      "area_error_pct": 1.3471901462663642,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 17250,
+        "fp": 3814,
+        "fn": 3534,
+        "tn": 624572
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.7012765265468738,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8244121582871344,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8189327763007975,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8299653579676675,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "16 features, 4 bands x 2 dates",
+      "context": "1 px",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.83541,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.5256322312159876,
+      "f1": 0.6890680734989958,
+      "precision": 0.9138904349208873,
+      "recall": 0.5530215550423403,
+      "average_precision": 0.8752032538146328,
+      "kappa": 0.6813764764430565,
+      "predicted_area_ha": 503.08,
+      "label_area_ha": 831.36,
+      "area_error_ha": -328.28000000000003,
+      "area_error_pct": -39.48710546574288,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 11494,
+        "fp": 1083,
+        "fn": 9290,
+        "tn": 627303
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5256322312159876,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.6890680734989958,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.9138904349208873,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.5530215550423403,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.39514,
+      "threshold_source": "unsupervised (otsu): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.6529328339212335,
+      "f1": 0.7900294803537642,
+      "precision": 0.7278070531009323,
+      "recall": 0.8638856812933026,
+      "average_precision": 0.8752032538146328,
+      "kappa": 0.7824695501200554,
+      "predicted_area_ha": 986.8000000000001,
+      "label_area_ha": 831.36,
+      "area_error_ha": 155.44000000000005,
+      "area_error_pct": 18.697074672825256,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 17955,
+        "fp": 6715,
+        "fn": 2829,
+        "tn": 621671
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.6529328339212335,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7900294803537642,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.7278070531009323,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8638856812933026,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.00657,
+      "threshold_source": "unsupervised (gmm): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.23502997398484335,
+      "f1": 0.380606105010578,
+      "precision": 0.23504326678355297,
+      "recall": 0.9997594303310239,
+      "average_precision": 0.8752032538146328,
+      "kappa": 0.34673840085823776,
+      "predicted_area_ha": 3536.2000000000003,
+      "label_area_ha": 831.36,
+      "area_error_ha": 2704.84,
+      "area_error_pct": 325.3512317167052,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 20779,
+        "fp": 67626,
+        "fn": 5,
+        "tn": 560760
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.23502997398484335,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.380606105010578,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.23504326678355297,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9997594303310239,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "GB pixel (change-only)",
+      "threshold": 0.50528,
+      "threshold_source": "oracle: fontainebleau itself -- not available in production",
+      "iou": 0.6812137330754352,
+      "f1": 0.8103832602286618,
+      "precision": 0.8074222668004012,
+      "recall": 0.813366050808314,
+      "average_precision": 0.8752032538146328,
+      "kappa": 0.804087883446377,
+      "predicted_area_ha": 837.48,
+      "label_area_ha": 831.36,
+      "area_error_ha": 6.1200000000000045,
+      "area_error_pct": 0.7361431870669751,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 16905,
+        "fp": 4032,
+        "fn": 3879,
+        "tn": 624354
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.6812137330754352,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.8103832602286618,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8074222668004012,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.813366050808314,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "9 features, no absolute post-fire level",
+      "context": "1 px",
+      "ablation": true
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "U-Net",
+      "threshold": 0.88522,
+      "threshold_source": "frozen: saumos, calibration blocks (r0c0, r1c2), 772,271 usable px, 16,653 burned",
+      "iou": 0.5562000515596803,
+      "f1": 0.7148181893481322,
+      "precision": 0.8386783284742468,
+      "recall": 0.6228348729792148,
+      "average_precision": 0.8304514501867729,
+      "kappa": 0.7068178503249679,
+      "predicted_area_ha": 617.4,
+      "label_area_ha": 831.36,
+      "area_error_ha": -213.96000000000004,
+      "area_error_pct": -25.73614318706698,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 12945,
+        "fp": 2490,
+        "fn": 7839,
+        "tn": 625896
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.5562000515596803,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7148181893481322,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.8386783284742468,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.6228348729792148,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "frozen",
+      "regime_family": "frozen",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "U-Net",
+      "threshold": 0.43743,
+      "threshold_source": "unsupervised (otsu): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.599083204168453,
+      "f1": 0.7492833426137887,
+      "precision": 0.6556939180653312,
+      "recall": 0.8740377213240954,
+      "average_precision": 0.8304514501867729,
+      "kappa": 0.7397622700168265,
+      "predicted_area_ha": 1108.2,
+      "label_area_ha": 831.36,
+      "area_error_ha": 276.84000000000003,
+      "area_error_pct": 33.29965357967668,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 18166,
+        "fp": 9539,
+        "fn": 2618,
+        "tn": 618847
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.599083204168453,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7492833426137887,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.6556939180653312,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.8740377213240954,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (otsu)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "U-Net",
+      "threshold": 0.05096,
+      "threshold_source": "unsupervised (gmm): fontainebleau, the 649,170 evaluated pixels, score histogram only -- no label consulted",
+      "iou": 0.3648440132664101,
+      "f1": 0.5346310783065208,
+      "precision": 0.3662275235891045,
+      "recall": 0.9897517321016166,
+      "average_precision": 0.8304514501867729,
+      "kappa": 0.5118140440628655,
+      "predicted_area_ha": 2246.8,
+      "label_area_ha": 831.36,
+      "area_error_ha": 1415.44,
+      "area_error_pct": 170.2559661277906,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 20571,
+        "fp": 35599,
+        "fn": 213,
+        "tn": 592787
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.3648440132664101,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.5346310783065208,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.3662275235891045,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.9897517321016166,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "unsupervised (gmm)",
+      "regime_family": "unsupervised",
+      "deployable": true,
+      "uses_target_labels": false,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    },
+    {
+      "experiment": "E2",
+      "event": "fontainebleau",
+      "method": "U-Net",
+      "threshold": 0.68228,
+      "threshold_source": "oracle: fontainebleau itself -- not available in production",
+      "iou": 0.6207647810081888,
+      "f1": 0.7660146472605914,
+      "precision": 0.7389554641387945,
+      "recall": 0.795130869899923,
+      "average_precision": 0.8304514501867729,
+      "kappa": 0.7579824118209072,
+      "predicted_area_ha": 894.5600000000001,
+      "label_area_ha": 831.36,
+      "area_error_ha": 63.200000000000045,
+      "area_error_pct": 7.602001539645887,
+      "prevalence": 0.03201626692545866,
+      "domain_pixels": 649170,
+      "footprint_pixels": 649264,
+      "confusion": {
+        "tp": 16526,
+        "fp": 5838,
+        "fn": 4258,
+        "tn": 622548
+      },
+      "interval": {
+        "iou": {
+          "metric": "iou",
+          "point": 0.6207647810081888,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "f1": {
+          "metric": "f1",
+          "point": 0.7660146472605914,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "precision": {
+          "metric": "precision",
+          "point": 0.7389554641387945,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        },
+        "recall": {
+          "metric": "recall",
+          "point": 0.795130869899923,
+          "n_blocks": 1,
+          "n_burned_blocks": 1,
+          "estimable": false,
+          "reason": "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+        }
+      },
+      "pr_curve": null,
+      "notes": [
+        "1 of the 1 spatial blocks in this evaluation domain contain burned pixels, below the 4 the protocol requires. A percentile interval built on so few would describe which block the draw happened to pick, not the uncertainty of the metric."
+      ],
+      "regime": "oracle",
+      "regime_family": "oracle",
+      "deployable": false,
+      "uses_target_labels": true,
+      "inputs": "4 bands x 2 dates",
+      "context": "256 px tile",
+      "ablation": false
+    }
+  ]
+}

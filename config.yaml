@@ -278,6 +278,27 @@ evaluation:
     frozen: true
     recalibrate_on_target: false
 
+    # A third threshold regime, added after E2 showed that the frozen threshold
+    # is the dominant failure on an unseen biome: the dNBR oracle sits at 0.284
+    # on fontainebleau against a frozen 0.576, so the index loses 80% of the
+    # burn to a threshold that is nearly twice its own optimum there.
+    #
+    # `unsupervised` estimates a threshold from the shape of the score's own
+    # histogram on the target event, using no labels. It is therefore
+    # deployable, which the oracle is not, and it is applied to EVERY method or
+    # to none -- the same symmetry rule that governs the frozen threshold.
+    #
+    # Both estimators are reported, not just the better one. Otsu was chosen
+    # first and gmm added afterwards, so publishing only the winner would be a
+    # selection on the test events by another name; see the provenance note in
+    # outputs/regimes.md.
+    unsupervised:
+      estimators: [otsu, gmm]
+      bins: 512               # histogram resolution for otsu
+      clip_percentiles: [0.5, 99.5]   # trims the tails that would dominate the variance
+      gmm_components: 2       # background mode + burned mode
+      max_samples: 200000     # subsample the scene for the mixture fit; seeded
+
   # Not a competitor -- impossible in production, it requires already knowing
   # the truth. An instrument:
   #   CNN ~ oracle > honest  -> the gain is calibration transfer, not context
@@ -385,6 +406,74 @@ evaluation:
         calibration: [r0c0, r1c2]
         test: [r0c1, r0c2, r2c1, r2c2]
         # everything not named above is train
+
+# -----------------------------------------------------------------------------
+# pixel_model -- the control that was missing from the original design.
+#
+# dNBR is 2 bands and one threshold; the U-Net is 8 bands and a receptive field.
+# Nothing in between, so "the network beats the index" confounds two causes:
+# six extra bands, and spatial context. This block is the model that separates
+# them -- every band the network sees, per pixel, with no context whatsoever.
+# Whatever it recovers of the network's lead was never about context.
+#
+# Histogram gradient boosting from scikit-learn, which is already a dependency.
+# CatBoost and LightGBM are the same algorithm family and would add a dependency
+# to change the third decimal; if that ever matters the estimator swaps here.
+# -----------------------------------------------------------------------------
+pixel_model:
+  estimator: sklearn.HistGradientBoostingClassifier
+  max_iter: 400
+  learning_rate: 0.06
+  max_leaf_nodes: 31
+  # NaN is routed natively by the histogram splitter, so an unusable pixel needs
+  # no imputation and no dropping -- which is what keeps this method's evaluation
+  # domain identical to the dNBR's, pixel for pixel.
+  handles_nan: true
+  # Training pixels come from the train-role blocks of the training event only.
+  # Those are already disjoint from the calibration and test blocks and 1 km
+  # buffered from them, so the pixel model inherits the U-Net's separation
+  # guarantee without needing a tiling rule of its own.
+  max_train_pixels: 1500000
+  seed: 20260821
+
+  # Two feature sets, and the comparison between them is the point.
+  #
+  # `full` is everything the U-Net sees, expressed per pixel. `change_only`
+  # drops every absolute post-fire level and keeps differences and pre-fire
+  # context, which is the tabular form of the question "does restricting the
+  # model to change features make its threshold transfer?".
+  features:
+    full:
+      - dnbr          # the baseline index itself
+      - pre_nbr
+      - post_nbr
+      - dndvi
+      - pre_ndvi
+      - post_ndvi
+      - dnbr2
+      - post_nbr2
+      - d_red
+      - d_nir08
+      - d_swir16
+      - d_swir22
+      - post_red
+      - post_nir08
+      - post_swir16
+      - post_swir22
+    change_only:
+      - dnbr
+      - dndvi
+      - dnbr2
+      - pre_nbr
+      - pre_ndvi
+      - d_red
+      - d_nir08
+      - d_swir16
+      - d_swir22
+  # The feature set whose rows carry the plain method name in the results table.
+  # The other one is reported beside it as an ablation, never instead of it.
+  reported: full
+
 
 model:
   architecture: unet
