@@ -250,7 +250,7 @@ conda env create -f environment.yml
 conda activate burned-area-s2
 
 python -m src.config                              # events and settings, as loaded
-python -m src.data.ems                            # EMS label provenance
+python -m src.data.ems                            # EMS label provenance + label rasters
 python -m src.data.stac --event saumos --list     # candidate scenes + cloud
 python -m src.data.stack                          # 8-channel stacks + validity masks
 python -m src.eval.blocks                         # spatial blocks and their roles

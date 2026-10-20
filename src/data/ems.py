@@ -263,6 +263,9 @@ def _report(cfg: Config, event_ids: list[str]) -> None:
         grid = grid_for_event(cfg, event)
         gdf = read_observed_event(cfg, event, crs=grid.crs)
         mask = rasterize_label(gdf, grid)
+        # Every downstream step reads this raster, so the step that owns the
+        # label writes it -- not a figure script run at the end of the chain.
+        label_path, _ = write_label_raster(cfg, event, grid)
 
         print(f"\n=== {event.id}  {event.label.product_id}")
         print(f"    status            : {event.label.status}")
@@ -276,6 +279,7 @@ def _report(cfg: Config, event_ids: list[str]) -> None:
         print(f"    rasterised @{grid.resolution:g} m : {mask.sum() * grid.pixel_area_ha:10.1f} ha")
         print(f"    EMS reported area : {event.label.reported_burnt_area_ha:10.1f} ha")
         print(f"    grid              : {grid}")
+        print(f"    label raster      : {label_path}")
         print("    --- paste under label.production in config.yaml ---")
         for key, value in prov.as_config_block().items():
             rendered = "null" if value is None else (
