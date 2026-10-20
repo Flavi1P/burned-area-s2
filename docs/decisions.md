@@ -60,3 +60,23 @@ cells are marked non-deployable in `regimes.json`, and a test asserts it.
 From a clean clone, the documented order failed: only `src.viz.quicklook` wrote
 the label rasters. The rasters are unchanged byte for byte. See
 `docs/reproduction.md`.
+
+## 2026-10-20 — Five seeds per trained model; separation rule fixed before running
+
+Written and committed before any multi-seed result existed.
+- **Reversal.** `config.yaml` said: "No multi-seed spread: it measures optimiser
+  variance, not the variance that matters." The second half still holds: seed
+  spread says nothing about variance across events. But the U-Net vs GB gaps are
+  0.01–0.03 IoU, and a single run cannot tell whether that is more than training
+  noise. That is the question a reviewer asks first.
+- **Seeds.** `model.seeds` and `pixel_model.seeds` are both
+  `[20260821 … 20260825]`. The first is the original single run, so its rows
+  must reproduce the August numbers. All five are reported. Choosing among them
+  is forbidden, and a test enforces it.
+- **Per seed:** training, epoch selection (AP on the calibration blocks) and the
+  frozen threshold. The bootstrap and the GMM subsample now draw from
+  `evaluation.seed`, with the same value as before, so they do not move.
+- **Separation rule.** Two methods are *separated* on a metric only when their
+  seed ranges [min, max] do not overlap. Otherwise the gap is
+  "indistinguishable at this sample size". The sd is the sample sd (ddof = 1).
+- **Historical table.** `outputs/results.md` keeps scoring the first seed only.

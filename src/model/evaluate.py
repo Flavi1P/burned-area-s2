@@ -25,6 +25,10 @@ Giving the network the same refit would answer a question nobody asked and would
 quietly restore the symmetry the oracle exists to break. The U-Net's honest row
 is compared against the dNBR's oracle row: that is the demanding comparison, and
 it is the one the design note asks for.
+
+**This is the historical single-run table.** It scores the first entry of
+``model.seeds``, which is the seed of the original run, fixed before any result.
+The spread over every seed lives in ``outputs/regimes.json``.
 """
 
 from __future__ import annotations
@@ -62,7 +66,10 @@ def calibrate_threshold(cfg: Config) -> thresholds_mod.Threshold:
     settings = cfg.evaluation["threshold"]
     event = cfg.event(settings["calibrated_on"])
     domain = baseline.build_domain(
-        cfg, event, role=settings["block_role"], score=read_probability(cfg, event)
+        cfg,
+        event,
+        role=settings["block_role"],
+        score=read_probability(cfg, event, cfg.model_seeds[0]),
     )
     frozen = thresholds_mod.calibrate(
         domain.score,
@@ -89,7 +96,7 @@ def rows_for(cfg: Config, experiment_ids: list[str] | None = None) -> tuple[list
         for event_id in experiment.test:
             event = cfg.event(event_id)
             domain = baseline.build_domain(
-                cfg, event, score=read_probability(cfg, event)
+                cfg, event, score=read_probability(cfg, event, cfg.model_seeds[0])
             )
             result = evaluate_domain(
                 domain.score,

@@ -180,6 +180,52 @@ def test_rejects_unknown_event_reference(raw):
 
 
 # --------------------------------------------------------------------------- #
+# seeds
+# --------------------------------------------------------------------------- #
+
+
+def test_shipped_config_trains_every_model_on_at_least_five_seeds(cfg):
+    """A 0.01 IoU gap between two single runs is unreadable. Five is the floor
+    the comparison was designed around."""
+    for seeds in (cfg.model_seeds, cfg.pixel_model_seeds):
+        assert len(seeds) >= 5
+        assert len(set(seeds)) == len(seeds)
+
+
+@pytest.mark.parametrize("section", ["model", "pixel_model"])
+def test_rejects_a_scalar_seed(raw, section):
+    """One `seed` key is the single run coming back through the side door."""
+    data, write = raw
+    data[section]["seed"] = 1
+    with pytest.raises(ConfigError, match=f"{section}.seed is gone"):
+        write(data)
+
+
+@pytest.mark.parametrize("section", ["model", "pixel_model"])
+def test_rejects_repeated_seeds(raw, section):
+    """A repeated seed counts one run twice and shrinks the spread."""
+    data, write = raw
+    data[section]["seeds"] = [1, 2, 2]
+    with pytest.raises(ConfigError, match="repeats a seed"):
+        write(data)
+
+
+@pytest.mark.parametrize("section", ["model", "pixel_model"])
+def test_rejects_an_empty_seed_list(raw, section):
+    data, write = raw
+    data[section]["seeds"] = []
+    with pytest.raises(ConfigError, match="non-empty"):
+        write(data)
+
+
+def test_model_seeds_are_not_the_evaluation_seed_source(cfg):
+    """The bootstrap and the GMM draw from `evaluation.seed`, so adding a
+    training seed cannot move an interval or an unsupervised threshold."""
+    assert isinstance(cfg.evaluation_seed, int)
+    assert "seed" not in cfg.model and "seed" not in cfg.pixel_model
+
+
+# --------------------------------------------------------------------------- #
 # grid
 # --------------------------------------------------------------------------- #
 

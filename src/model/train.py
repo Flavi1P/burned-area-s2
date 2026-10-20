@@ -51,8 +51,8 @@ from .loss import BceDiceLoss
 from .predict import weights_path
 
 
-def history_path(cfg: Config, experiment_id: str) -> Path:
-    return cfg.path_for("outputs", f"training_{experiment_id.lower()}.json")
+def history_path(cfg: Config, experiment_id: str, seed: int) -> Path:
+    return cfg.path_for("outputs", f"training_{experiment_id.lower()}_s{seed}.json")
 
 
 # --------------------------------------------------------------------------- #
@@ -141,15 +141,22 @@ def validate(
 # --------------------------------------------------------------------------- #
 
 
-def train(cfg: Config, experiment: Experiment, quick: int | None = None) -> dict:
-    """Fit one experiment and keep the epoch that scores best on calibration."""
+def train(
+    cfg: Config, experiment: Experiment, seed: int, quick: int | None = None
+) -> dict:
+    """Fit one experiment for one seed and keep the epoch that scores best on
+    calibration. Epoch selection is per seed, on the same blocks every time."""
     if len(experiment.train) != 1:
         raise ValueError(
             f"{experiment.id}: this loop trains on exactly one event, got "
             f"{experiment.train}"
         )
     settings = cfg.model
-    seed = int(settings["seed"])
+    if seed not in cfg.model_seeds:
+        raise ValueError(
+            f"seed {seed} is not in model.seeds {cfg.model_seeds}: an unlisted seed "
+            "is a seed nobody has to report"
+        )
     torch.manual_seed(seed)
     np.random.seed(seed)
 
@@ -159,7 +166,9 @@ def train(cfg: Config, experiment: Experiment, quick: int | None = None) -> dict
     normalisation = fit_normalisation(cfg)
     save_normalisation(cfg, normalisation)
 
-    dataset = training_dataset(cfg, event, normalisation, augment=settings["augment"] == "d4")
+    dataset = training_dataset(
+        cfg, event, normalisation, augment=settings["augment"] == "d4", seed=seed
+    )
     loader = DataLoader(
         dataset,
         batch_size=int(settings["batch_size"]),
@@ -278,21 +287,22 @@ def train(cfg: Config, experiment: Experiment, quick: int | None = None) -> dict
         "history": history,
     }
 
-    dest = weights_path(cfg, experiment.id)
+    dest = weights_path(cfg, experiment.id, seed)
     dest.parent.mkdir(parents=True, exist_ok=True)
     torch.save(
         {
             "state_dict": best_state,
             "experiment": experiment.id,
             "epoch": best["epoch"],
+            "seed": seed,
             "selection": payload["selection"],
             "normalisation": normalisation.as_dict(),
             "config": str(cfg.path.name),
         },
         dest,
     )
-    history_path(cfg, experiment.id).parent.mkdir(parents=True, exist_ok=True)
-    history_path(cfg, experiment.id).write_text(
+    history_path(cfg, experiment.id, seed).parent.mkdir(parents=True, exist_ok=True)
+    history_path(cfg, experiment.id, seed).write_text(
         json.dumps(payload, indent=2, default=float) + "\n", encoding="utf-8"
     )
     payload["weights"] = str(dest)
@@ -313,6 +323,9 @@ def main(argv: list[str] | None = None) -> None:
         default=None,
         help="override model.epochs; for smoke tests only",
     )
+    parser.add_argument(
+        "--seed", action="append", type=int, default=None, help="default: every model.seeds"
+    )
     parser.add_argument("--config", default=None)
     args = parser.parse_args(argv)
 
@@ -322,17 +335,19 @@ def main(argv: list[str] | None = None) -> None:
         f"experiment : {experiment.id}  train {experiment.train} -> test "
         f"{experiment.test}"
     )
-    payload = train(cfg, experiment, quick=args.epochs)
+    for seed in args.seed or cfg.model_seeds:
+        print(f"seed       : {seed}")
+        payload = train(cfg, experiment, seed, quick=args.epochs)
 
-    selection = payload["selection"]
-    print(
-        f"selected   : epoch {selection['best_epoch']} of {payload['epochs']}, "
-        f"{selection['metric']} = {selection['best_value']:.4f} on the "
-        f"{selection['role']} blocks ({', '.join(selection['blocks'])})"
-    )
-    print(f"wall time  : {payload['wall_seconds'] / 60:.1f} min")
-    print(f"weights    : {payload['weights']}")
-    print(f"history    : {history_path(cfg, experiment.id)}")
+        selection = payload["selection"]
+        print(
+            f"selected   : epoch {selection['best_epoch']} of {payload['epochs']}, "
+            f"{selection['metric']} = {selection['best_value']:.4f} on the "
+            f"{selection['role']} blocks ({', '.join(selection['blocks'])})"
+        )
+        print(f"wall time  : {payload['wall_seconds'] / 60:.1f} min")
+        print(f"weights    : {payload['weights']}")
+        print(f"history    : {history_path(cfg, experiment.id, seed)}")
 
 
 if __name__ == "__main__":  # pragma: no cover

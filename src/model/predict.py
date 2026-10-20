@@ -32,12 +32,12 @@ from . import unet
 from .dataset import EventArrays, Normalisation, load_event, load_normalisation
 
 
-def probability_path(cfg: Config, event: Event) -> Path:
-    return cfg.path_for("data_interim", event.id, "unet_prob.tif")
+def probability_path(cfg: Config, event: Event, seed: int) -> Path:
+    return cfg.path_for("data_interim", event.id, f"unet_prob_s{seed}.tif")
 
 
-def weights_path(cfg: Config, experiment_id: str) -> Path:
-    return cfg.path_for("models", f"unet_{experiment_id.lower()}.pt")
+def weights_path(cfg: Config, experiment_id: str, seed: int) -> Path:
+    return cfg.path_for("models", f"unet_{experiment_id.lower()}_s{seed}.pt")
 
 
 def load_model(cfg: Config, path: Path) -> tuple[torch.nn.Module, dict]:
@@ -104,9 +104,13 @@ def predict_event(
 
 
 def write_probability(
-    cfg: Config, event: Event, probability: np.ndarray, tags: dict | None = None
+    cfg: Config,
+    event: Event,
+    probability: np.ndarray,
+    seed: int,
+    tags: dict | None = None,
 ) -> Path:
-    dest = probability_path(cfg, event)
+    dest = probability_path(cfg, event, seed)
     dest.parent.mkdir(parents=True, exist_ok=True)
     grid = grid_for_event(cfg, event)
     with rasterio.open(dest, "w", **grid.profile("float32", nodata=float("nan"))) as dst:
@@ -116,11 +120,11 @@ def write_probability(
     return dest
 
 
-def read_probability(cfg: Config, event: Event) -> np.ndarray:
-    path = probability_path(cfg, event)
+def read_probability(cfg: Config, event: Event, seed: int) -> np.ndarray:
+    path = probability_path(cfg, event, seed)
     if not path.exists():
         raise FileNotFoundError(
-            f"{path} is missing: run `python -m src.model.predict --event {event.id}`"
+            f"{path} is missing: run `python -m src.model.predict --seed {seed}`"
         )
     with rasterio.open(path) as src:
         return src.read(1).astype("float32")
@@ -135,39 +139,45 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--experiment", default="E1", help="which trained weights")
     parser.add_argument("--event", action="append", default=None, help="default: all")
+    parser.add_argument(
+        "--seed", action="append", type=int, default=None, help="default: every model.seeds"
+    )
     parser.add_argument("--config", default=None)
     args = parser.parse_args(argv)
 
     cfg = load_config(args.config)
-    path = weights_path(cfg, args.experiment)
-    if not path.exists():
-        raise SystemExit(
-            f"{path} is missing: run `python -m src.model.train --experiment "
-            f"{args.experiment}` first"
-        )
-    model, checkpoint = load_model(cfg, path)
     normalisation = load_normalisation(cfg)
+    for seed in args.seed or cfg.model_seeds:
+        path = weights_path(cfg, args.experiment, seed)
+        if not path.exists():
+            raise SystemExit(
+                f"{path} is missing: run `python -m src.model.train --experiment "
+                f"{args.experiment} --seed {seed}` first"
+            )
+        model, checkpoint = load_model(cfg, path)
 
-    print(f"weights    : {path.name}  (epoch {checkpoint.get('epoch')})")
-    for event_id in args.event or list(cfg.events):
-        event = cfg.event(event_id)
-        probability = predict_event(cfg, event, model, normalisation)
-        dest = write_probability(
-            cfg,
-            event,
-            probability,
-            tags={
-                "experiment": args.experiment,
-                "weights": path.name,
-                "selected_epoch": checkpoint.get("epoch"),
-                "tiling": "test regime, no overlap, no test-time augmentation",
-            },
-        )
-        finite = np.isfinite(probability)
-        print(
-            f"  {event.id:14s} {int(finite.sum()):>9,} px predicted  "
-            f"mean p {float(np.nanmean(probability)):.4f}  -> {dest}"
-        )
+        print(f"weights    : {path.name}  (epoch {checkpoint.get('epoch')})")
+        for event_id in args.event or list(cfg.events):
+            event = cfg.event(event_id)
+            probability = predict_event(cfg, event, model, normalisation)
+            dest = write_probability(
+                cfg,
+                event,
+                probability,
+                seed,
+                tags={
+                    "experiment": args.experiment,
+                    "weights": path.name,
+                    "seed": seed,
+                    "selected_epoch": checkpoint.get("epoch"),
+                    "tiling": "test regime, no overlap, no test-time augmentation",
+                },
+            )
+            finite = np.isfinite(probability)
+            print(
+                f"  {event.id:14s} {int(finite.sum()):>9,} px predicted  "
+                f"mean p {float(np.nanmean(probability)):.4f}  -> {dest}"
+            )
 
 
 if __name__ == "__main__":  # pragma: no cover

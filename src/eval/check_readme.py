@@ -1,12 +1,15 @@
 """Check that every number in the README results table matches outputs/regimes.json.
 
 A README edited by hand drifts from the pipeline silently; this fails loudly
-instead. Run: python -m src.eval.check_readme
+instead. A cell is either a bare number (a method with no seed) or
+``mean ± sd`` with an optional ``(min–max)``; a method trained on several seeds
+may not be quoted without its sd. Run: python -m src.eval.check_readme
 """
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -19,12 +22,33 @@ COLUMNS = {
     "oracle": ("oracle", "iou"),
     "AP": ("frozen", "average_precision"),
 }
+CELL = re.compile(r"^(\d\.\d{3})(?: ± (\d\.\d{3}))?(?: \((\d\.\d{3})–(\d\.\d{3})\))?$")
 
 
-def mismatches(readme: str, rows: list[dict]) -> list[str]:
-    """Every README table cell that disagrees with regimes.json at 3 decimals."""
-    index = {(r["event"], r["method"], r["regime"]): r for r in rows}
-    events = {r["event"] for r in rows}
+def _cell_errors(value: str, spread: dict) -> list[str]:
+    match = CELL.match(value)
+    if match is None:
+        return [f"unreadable cell {value!r}"]
+    mean, sd, low, high = match.groups()
+    errors = []
+    if mean != f"{spread['mean']:.3f}":
+        errors.append(f"mean {mean}, json {spread['mean']:.3f}")
+    if spread["sd"] is None:
+        if sd is not None or low is not None:
+            errors.append("spread quoted for a method with one value")
+    elif sd is None:
+        errors.append(f"mean quoted without its sd over {spread['n']} seeds")
+    elif sd != f"{spread['sd']:.3f}":
+        errors.append(f"sd {sd}, json {spread['sd']:.3f}")
+    if low is not None and (low, high) != (f"{spread['min']:.3f}", f"{spread['max']:.3f}"):
+        errors.append(f"range {low}–{high}, json {spread['min']:.3f}–{spread['max']:.3f}")
+    return errors
+
+
+def mismatches(readme: str, summary: list[dict]) -> list[str]:
+    """Every README table cell that disagrees with the regimes.json summary."""
+    index = {(c["event"], c["method"], c["regime"]): c for c in summary}
+    events = {c["event"] for c in summary}
     header: list[str] | None = None
     errors, checked = [], 0
     for line in readme.splitlines():
@@ -36,11 +60,13 @@ def mismatches(readme: str, rows: list[dict]) -> list[str]:
             continue
         for name, value in zip(header[2:], cells[2:]):
             regime, metric = COLUMNS[name]
-            row = index.get((cells[0], cells[1], regime))
-            if row is None:
+            cell = index.get((cells[0], cells[1], regime))
+            if cell is None:
                 errors.append(f"{cells[0]} / {cells[1]} / {regime}: not in regimes.json")
-            elif f"{row[metric]:.3f}" != value:
-                errors.append(f"{cells[0]} / {cells[1]} / {name}: README {value}, json {row[metric]:.3f}")
+            else:
+                spread = {**cell[metric], "n": cell["n_seeds"]}
+                for e in _cell_errors(value, spread):
+                    errors.append(f"{cells[0]} / {cells[1]} / {name}: {e}")
             checked += 1
     if checked == 0:
         errors.append("no results table found in README")
@@ -48,8 +74,8 @@ def mismatches(readme: str, rows: list[dict]) -> list[str]:
 
 
 def main() -> None:
-    rows = json.loads((ROOT / "outputs" / "regimes.json").read_text(encoding="utf-8"))["rows"]
-    errors = mismatches((ROOT / "README.md").read_text(encoding="utf-8"), rows)
+    payload = json.loads((ROOT / "outputs" / "regimes.json").read_text(encoding="utf-8"))
+    errors = mismatches((ROOT / "README.md").read_text(encoding="utf-8"), payload["summary"])
     for e in errors:
         print("MISMATCH", e)
     print("README consistent with outputs/regimes.json" if not errors else f"{len(errors)} mismatches")

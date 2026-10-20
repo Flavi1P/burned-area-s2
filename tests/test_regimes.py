@@ -12,7 +12,9 @@ test below names one such way:
 * an oracle row presented as something somebody could deploy;
 * the pixel model trained on ground it is later evaluated on;
 * the losing unsupervised estimator quietly disappearing from the table, which
-  would turn "we tried two" into a selection nobody can see.
+  would turn "we tried two" into a selection nobody can see;
+* a seed quietly missing from the grid, which would turn "five seeds" into a
+  choice of the favourable ones.
 """
 
 from __future__ import annotations
@@ -232,11 +234,10 @@ def test_every_method_saw_the_same_pixels(grid):
 def test_the_grid_is_complete(grid):
     """A missing cell is a hole, not a guard: the decomposition is the grid."""
     expected = len(grid["unsupervised_estimators"]) + 2  # frozen + oracle
-    counted: dict[tuple[str, str], int] = {}
+    counted: dict[tuple, int] = {}
     for row in grid["rows"]:
-        counted[(row["event"], row["method"])] = counted.get(
-            (row["event"], row["method"]), 0
-        ) + 1
+        key = (row["event"], row["method"], row["seed"])
+        counted[key] = counted.get(key, 0) + 1
     assert counted, "no rows"
     for key, n in counted.items():
         assert n == expected, f"{key} has {n} regimes, expected {expected}"
@@ -264,10 +265,10 @@ def test_no_oracle_row_is_marked_deployable(grid):
 def test_the_oracle_bounds_its_own_method(grid):
     """Refit on the event itself, so by construction no other regime of the
     same score can beat it. If one does, the regimes are not sharing pixels."""
-    best: dict[tuple[str, str], float] = {}
-    oracle: dict[tuple[str, str], float] = {}
+    best: dict[tuple, float] = {}
+    oracle: dict[tuple, float] = {}
     for row in grid["rows"]:
-        key = (row["event"], row["method"])
+        key = (row["event"], row["method"], row["seed"])
         if row["regime_family"] == "oracle":
             oracle[key] = row["f1"]
         else:
@@ -279,9 +280,9 @@ def test_the_oracle_bounds_its_own_method(grid):
 def test_average_precision_does_not_move_with_the_regime(grid):
     """AP is threshold-free, so it belongs to the score, not the operating
     point. If it moves down a method's rows, the rows are not one score."""
-    seen: dict[tuple[str, str], set] = {}
+    seen: dict[tuple, set] = {}
     for row in grid["rows"]:
-        seen.setdefault((row["event"], row["method"]), set()).add(
+        seen.setdefault((row["event"], row["method"], row["seed"]), set()).add(
             round(row["average_precision"], 9)
         )
     for key, values in seen.items():
@@ -289,22 +290,27 @@ def test_average_precision_does_not_move_with_the_regime(grid):
 
 
 def test_one_frozen_threshold_per_method_across_events(grid):
-    """The frozen regime is only frozen if it is the same number everywhere."""
-    by_method: dict[str, set] = {}
+    """The frozen regime is only frozen if it is the same number everywhere.
+    One per method *and seed*: each seed is calibrated on its own score."""
+    by_key: dict[tuple, set] = {}
     for row in grid["rows"]:
         if row["regime_family"] == "frozen":
-            by_method.setdefault(row["method"], set()).add(round(row["threshold"], 6))
-    for method, values in by_method.items():
+            by_key.setdefault((row["method"], row["seed"]), set()).add(
+                round(row["threshold"], 6)
+            )
+    frozen = {(e["method"], e["seed"]): e for e in grid["frozen_thresholds"]}
+    assert set(by_key) == set(frozen)
+    for key, values in by_key.items():
         assert len(values) == 1, (
-            f"{method} used {len(values)} frozen thresholds across events, which is a "
+            f"{key} used {len(values)} frozen thresholds across events, which is a "
             "recalibration on the target by another name"
         )
-        frozen = grid["frozen_thresholds"][method]
-        assert values.pop() == pytest.approx(frozen["value"], abs=1e-5)
+        assert values.pop() == pytest.approx(frozen[key]["value"], abs=1e-5)
 
 
 def test_frozen_thresholds_were_calibrated_off_every_test_event(grid, cfg):
-    for method, entry in grid["frozen_thresholds"].items():
+    for entry in grid["frozen_thresholds"]:
+        method = (entry["method"], entry["seed"])
         assert entry["frozen"] is True, method
         assert entry["uses_labels"] is True, method
         assert cfg.evaluation["threshold"]["calibrated_on"] in entry["calibrated_on"]
@@ -315,10 +321,118 @@ def test_frozen_thresholds_were_calibrated_off_every_test_event(grid, cfg):
 
 def test_frozen_thresholds_share_their_calibration_pixels(grid):
     """Threshold symmetry, extended to every method in the grid."""
-    entries = list(grid["frozen_thresholds"].values())
+    entries = grid["frozen_thresholds"]
     assert len({e["n_pixels"] for e in entries}) == 1
     assert len({e["n_positive"] for e in entries}) == 1
     assert len({e["objective"] for e in entries}) == 1
+
+
+# --------------------------------------------------------------------------- #
+# seeds
+# --------------------------------------------------------------------------- #
+
+
+def test_every_configured_seed_is_in_the_grid(grid, cfg):
+    """No post-hoc selection: every cell of a trained method carries exactly the
+    seeds config.yaml lists, in the per-seed rows and in the summary."""
+    expected = {m.name: list(m.seeds) for m in regimes.methods(cfg)}
+    assert {m["name"]: m["seeds"] for m in grid["methods"]} == expected
+    assert grid["seeds"] == {
+        "model": cfg.model_seeds,
+        "pixel_model": cfg.pixel_model_seeds,
+    }
+
+    seen: dict[tuple, list] = {}
+    for row in grid["rows"]:
+        seen.setdefault((row["event"], row["method"], row["regime"]), []).append(
+            row["seed"]
+        )
+    assert seen
+    for (event, method, regime), seeds in seen.items():
+        assert sorted(seeds, key=str) == sorted(expected[method], key=str), (
+            f"{event} / {method} / {regime}: seeds {seeds}, config lists "
+            f"{expected[method]}"
+        )
+    for cell in grid["summary"]:
+        assert cell["seeds"] == seen[(cell["event"], cell["method"], cell["regime"])]
+        assert cell["n_seeds"] == len(expected[cell["method"]])
+
+    frozen_seeds: dict[str, list] = {}
+    for entry in grid["frozen_thresholds"]:
+        frozen_seeds.setdefault(entry["method"], []).append(entry["seed"])
+    assert frozen_seeds == expected
+
+
+def test_the_summary_is_the_reduction_of_the_rows(grid):
+    """The table is generated from the summary; the summary must be exactly the
+    per-seed rows reduced, or the table quotes numbers no seed produced."""
+    rows: dict[tuple, list] = {}
+    for row in grid["rows"]:
+        rows.setdefault((row["event"], row["method"], row["regime"]), []).append(row)
+    assert len(grid["summary"]) == len(rows)
+    for cell in grid["summary"]:
+        group = rows[(cell["event"], cell["method"], cell["regime"])]
+        for metric in ("iou", "average_precision"):
+            values = np.array([r[metric] for r in group])
+            assert cell[metric]["mean"] == pytest.approx(values.mean())
+            assert cell[metric]["min"] == pytest.approx(values.min())
+            assert cell[metric]["max"] == pytest.approx(values.max())
+            if values.size > 1:
+                assert cell[metric]["sd"] == pytest.approx(values.std(ddof=1))
+            else:
+                assert cell[metric]["sd"] is None
+
+
+def _toy_rows(method, seeds, ious):
+    return [
+        {
+            "event": "e", "method": method, "regime": "frozen",
+            "regime_family": "frozen", "deployable": True, "ablation": False,
+            "seed": seed, "iou": iou, "average_precision": iou, "f1": iou,
+            "precision": iou, "recall": iou, "threshold": 0.5, "area_error_pct": 0.0,
+        }
+        for seed, iou in zip(seeds, ious)
+    ]
+
+
+def test_summarise_keeps_every_seed_and_uses_the_sample_sd():
+    rows = _toy_rows("U-Net", [1, 2, 3, 4, 5], [0.80, 0.82, 0.84, 0.86, 0.88])
+    (cell,) = regimes.summarise(rows)
+    assert cell["seeds"] == [1, 2, 3, 4, 5]
+    assert cell["iou"]["mean"] == pytest.approx(0.84)
+    assert cell["iou"]["sd"] == pytest.approx(np.std([0.80, 0.82, 0.84, 0.86, 0.88], ddof=1))
+    assert (cell["iou"]["min"], cell["iou"]["max"]) == (0.80, 0.88)
+    (single,) = regimes.summarise(_toy_rows("dNBR", [None], [0.7]))
+    assert single["iou"]["sd"] is None
+    assert regimes.format_spread(single["iou"]) == "0.700"
+    assert regimes.format_spread(cell["iou"]) == "0.840 ± 0.032 (0.800–0.880)"
+
+
+def test_overlapping_seed_ranges_are_indistinguishable():
+    """The rule the README rewording rests on: a mean gap inside the seed
+    ranges is not a finding, however it rounds."""
+    overlapping = regimes.summarise(
+        _toy_rows("U-Net", [1, 2, 3], [0.85, 0.86, 0.90])
+        + _toy_rows("GB pixel", [1, 2, 3], [0.86, 0.87, 0.88])
+    )
+    (gap,) = regimes.compare(overlapping)
+    assert gap["iou"]["separated"] is False
+    assert gap["iou"]["gap"] == pytest.approx(0.87 - 0.87, abs=1e-12)
+
+    disjoint = regimes.summarise(
+        _toy_rows("U-Net", [1, 2, 3], [0.90, 0.91, 0.92])
+        + _toy_rows("GB pixel", [1, 2, 3], [0.86, 0.87, 0.88])
+    )
+    (gap,) = regimes.compare(disjoint)
+    assert gap["iou"]["separated"] is True
+    assert gap["iou"]["gap"] == pytest.approx(0.04)
+
+
+def test_an_unlisted_seed_cannot_be_fitted(cfg):
+    """A seed outside the config is a seed nobody has to report."""
+    unlisted = max(cfg.pixel_model_seeds) + 1
+    with pytest.raises(ValueError, match="not in pixel_model.seeds"):
+        pixel_model.fit(cfg, unlisted)
 
 
 def test_no_interval_is_published_without_enough_burned_blocks(grid):

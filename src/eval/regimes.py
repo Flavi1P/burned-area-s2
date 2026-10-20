@@ -42,6 +42,16 @@ before either was written into ``config.yaml``. Otsu won. Reporting only Otsu
 would be a choice made on the test events and hidden, so both estimators are
 carried in every table this module writes, and the mixture's poor showing is
 part of the result rather than something that was quietly dropped.
+
+**Every trained score is run once per configured seed, and every seed is in
+the output.** The dNBR has no seed. The pixel model and the U-Net are fitted,
+epoch-selected and frozen-thresholded once per seed, each seed on the same
+calibration blocks. ``rows`` keeps every seed; ``summary`` reduces them to
+mean, sample sd, min and max; ``comparisons`` applies one rule, fixed here
+before any multi-seed number existed: two methods are *separated* on a metric
+only when their seed ranges do not overlap. Otherwise the gap is reported as
+indistinguishable at this sample size. Five seeds give a floor on the
+uncertainty of a gap, not an interval on it.
 """
 
 from __future__ import annotations
@@ -51,7 +61,7 @@ import datetime as dt
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
 
@@ -76,7 +86,8 @@ class Method:
     score_name: str
     inputs: str  # what the method is allowed to see, per pixel
     context: str  # its spatial extent: the axis the U-Net is supposed to win on
-    load: Callable[[Config, Event], np.ndarray]
+    load: Callable[[Config, Event, Optional[int]], np.ndarray]
+    seeds: tuple[Optional[int], ...] = (None,)  # (None,) for a score with no seed
     ablation: bool = False
 
 
@@ -90,14 +101,17 @@ def methods(cfg: Config) -> list[Method]:
             score_name="dnbr",
             inputs="2 bands x 2 dates",
             context="1 px",
-            load=lambda c, e: read_dnbr(c, e),
+            load=lambda c, e, _seed: read_dnbr(c, e),
         ),
         Method(
             name="GB pixel",
             score_name="gb",
             inputs=f"{len(cfg.pixel_model['features'][reported])} features, 4 bands x 2 dates",
             context="1 px",
-            load=lambda c, e, s=reported: pixel_model.read_probability(c, e, s),
+            load=lambda c, e, seed, s=reported: pixel_model.read_probability(
+                c, e, s, seed
+            ),
+            seeds=tuple(cfg.pixel_model_seeds),
         ),
     ]
     for feature_set in ablations:
@@ -107,7 +121,10 @@ def methods(cfg: Config) -> list[Method]:
                 score_name=f"gb_{feature_set}",
                 inputs=f"{len(cfg.pixel_model['features'][feature_set])} features, no absolute post-fire level",
                 context="1 px",
-                load=lambda c, e, s=feature_set: pixel_model.read_probability(c, e, s),
+                load=lambda c, e, seed, s=feature_set: pixel_model.read_probability(
+                    c, e, s, seed
+                ),
+                seeds=tuple(cfg.pixel_model_seeds),
                 ablation=True,
             )
         )
@@ -118,17 +135,18 @@ def methods(cfg: Config) -> list[Method]:
             inputs="4 bands x 2 dates",
             context="256 px tile",
             load=_load_unet,
+            seeds=tuple(cfg.model_seeds),
         )
     )
     return built
 
 
-def _load_unet(cfg: Config, event: Event) -> np.ndarray:
+def _load_unet(cfg: Config, event: Event, seed: Optional[int]) -> np.ndarray:
     # Imported here rather than at module scope: the U-Net's reader pulls in
     # torch, and the dNBR and pixel-model rows must not need it to be installed.
     from ..model.predict import read_probability
 
-    return read_probability(cfg, event)
+    return read_probability(cfg, event, seed)
 
 
 # --------------------------------------------------------------------------- #
@@ -136,7 +154,9 @@ def _load_unet(cfg: Config, event: Event) -> np.ndarray:
 # --------------------------------------------------------------------------- #
 
 
-def frozen_threshold(cfg: Config, method: Method) -> thresholds_mod.Threshold:
+def frozen_threshold(
+    cfg: Config, method: Method, seed: Optional[int]
+) -> thresholds_mod.Threshold:
     """One threshold per method, from the one calibration function.
 
     The same pixels for every method -- the calibration blocks of the training
@@ -152,7 +172,7 @@ def frozen_threshold(cfg: Config, method: Method) -> thresholds_mod.Threshold:
             "event: calibrating on a test event is the leak this protocol prevents"
         )
     domain = build_domain(
-        cfg, event, role=settings["block_role"], score=method.load(cfg, event)
+        cfg, event, role=settings["block_role"], score=method.load(cfg, event, seed)
     )
     return thresholds_mod.calibrate(
         domain.score,
@@ -184,7 +204,7 @@ def thresholds_for(
                 ),
                 estimator=estimator,
                 settings=settings,
-                seed=int(cfg.pixel_model["seed"]),
+                seed=cfg.evaluation_seed,
             )
         )
     out.append(
@@ -220,44 +240,53 @@ def run(cfg: Config, experiment_ids: list[str] | None = None) -> dict:
     ]
     catalogue = methods(cfg)
     forbidden = tuple(cfg.evaluation.get("forbidden_metrics", ()))
-    frozen = {m.name: frozen_threshold(cfg, m) for m in catalogue}
+    frozen = {
+        (m.name, seed): frozen_threshold(cfg, m, seed)
+        for m in catalogue
+        for seed in m.seeds
+    }
 
     rows: list[dict] = []
-    domains: dict[tuple[str, str], int] = {}
+    domains: dict[tuple[str, str, Optional[int]], int] = {}
     for experiment in experiments:
         for event_id in experiment.test:
             event = cfg.event(event_id)
             for method in catalogue:
-                domain = build_domain(cfg, event, score=method.load(cfg, event))
-                domains[(event_id, method.name)] = int(domain.truth.size)
+                for seed in method.seeds:
+                    domain = build_domain(cfg, event, score=method.load(cfg, event, seed))
+                    domains[(event_id, method.name, seed)] = int(domain.truth.size)
 
-                for threshold in thresholds_for(cfg, method, domain, frozen[method.name]):
-                    result: Result = evaluate(
-                        domain.score,
-                        domain.truth,
-                        threshold.value,
-                        method=method.name,
-                        event=event.id,
-                        experiment=experiment.id,
-                        threshold_source=f"{_label(threshold)}: {threshold.calibrated_on}",
-                        pixel_area_ha=domain.pixel_area_ha,
-                        footprint_pixels=domain.footprint_pixels,
-                        with_curve=False,
-                    )
-                    row = with_interval(cfg, domain, result).as_row(forbidden)
-                    row |= {
-                        "regime": _label(threshold),
-                        "regime_family": threshold.regime,
-                        "deployable": not threshold.uses_labels
-                        or threshold.regime == thresholds_mod.FROZEN,
-                        "uses_target_labels": threshold.regime == thresholds_mod.ORACLE,
-                        "inputs": method.inputs,
-                        "context": method.context,
-                        "ablation": method.ablation,
-                    }
-                    rows.append(row)
+                    for threshold in thresholds_for(
+                        cfg, method, domain, frozen[(method.name, seed)]
+                    ):
+                        result: Result = evaluate(
+                            domain.score,
+                            domain.truth,
+                            threshold.value,
+                            method=method.name,
+                            event=event.id,
+                            experiment=experiment.id,
+                            threshold_source=f"{_label(threshold)}: {threshold.calibrated_on}",
+                            pixel_area_ha=domain.pixel_area_ha,
+                            footprint_pixels=domain.footprint_pixels,
+                            with_curve=False,
+                        )
+                        row = with_interval(cfg, domain, result).as_row(forbidden)
+                        row |= {
+                            "regime": _label(threshold),
+                            "regime_family": threshold.regime,
+                            "deployable": not threshold.uses_labels
+                            or threshold.regime == thresholds_mod.FROZEN,
+                            "uses_target_labels": threshold.regime == thresholds_mod.ORACLE,
+                            "inputs": method.inputs,
+                            "context": method.context,
+                            "ablation": method.ablation,
+                            "seed": seed,
+                        }
+                        rows.append(row)
 
     _assert_identical_domains(domains)
+    summary = summarise(rows)
 
     return {
         "generated": dt.datetime.now().isoformat(timespec="seconds"),
@@ -274,19 +303,30 @@ def run(cfg: Config, experiment_ids: list[str] | None = None) -> dict:
                 "inputs": m.inputs,
                 "context": m.context,
                 "ablation": m.ablation,
+                "seeds": list(m.seeds),
             }
             for m in catalogue
         ],
-        "frozen_thresholds": {name: t.as_dict() for name, t in frozen.items()},
+        "seeds": {"model": cfg.model_seeds, "pixel_model": cfg.pixel_model_seeds},
+        "sd": "sample standard deviation (ddof=1) across seeds; null for one value",
+        "separation_rule": SEPARATION_RULE,
+        "frozen_thresholds": [
+            {"method": name, "seed": seed, **t.as_dict()}
+            for (name, seed), t in frozen.items()
+        ],
         "regimes": ["frozen", "unsupervised", "oracle"],
         "unsupervised_estimators": list(
             cfg.evaluation["threshold"]["unsupervised"]["estimators"]
         ),
         "rows": rows,
+        "summary": summary,
+        "comparisons": compare(summary),
     }
 
 
-def _assert_identical_domains(domains: dict[tuple[str, str], int]) -> None:
+def _assert_identical_domains(
+    domains: dict[tuple[str, str, Optional[int]], int]
+) -> None:
     """Every method saw the same pixels of an event, or the grid means nothing.
 
     Checked here rather than only in the test suite: a domain mismatch produces
@@ -294,8 +334,8 @@ def _assert_identical_domains(domains: dict[tuple[str, str], int]) -> None:
     columns of that table against each other.
     """
     by_event: dict[str, dict[str, int]] = {}
-    for (event_id, method), pixels in domains.items():
-        by_event.setdefault(event_id, {})[method] = pixels
+    for (event_id, method, seed), pixels in domains.items():
+        by_event.setdefault(event_id, {})[f"{method} seed {seed}"] = pixels
     for event_id, counts in by_event.items():
         if len(set(counts.values())) > 1:
             detail = ", ".join(f"{m}: {n:,}" for m, n in sorted(counts.items()))
@@ -305,6 +345,94 @@ def _assert_identical_domains(domains: dict[tuple[str, str], int]) -> None:
                 "wherever the shared validity mask is, or the comparison is between "
                 "different evaluations."
             )
+
+
+# --------------------------------------------------------------------------- #
+# seeds
+# --------------------------------------------------------------------------- #
+
+SUMMARISED = ("iou", "f1", "precision", "recall", "average_precision", "threshold",
+              "area_error_pct")
+SEPARATION_RULE = (
+    "two methods are separated on a metric only when their seed ranges "
+    "[min, max] do not overlap; otherwise indistinguishable at this sample size"
+)
+# The pairs every finding in the README rests on: context vs no context, and
+# each trained score against the index.
+PAIRS = (("U-Net", "GB pixel"), ("GB pixel", "dNBR"), ("U-Net", "dNBR"))
+
+
+def _spread(values: list[float]) -> dict:
+    array = np.asarray(values, dtype=float)
+    return {
+        "mean": float(array.mean()),
+        "sd": float(array.std(ddof=1)) if array.size > 1 else None,
+        "min": float(array.min()),
+        "max": float(array.max()),
+    }
+
+
+def summarise(rows: list[dict]) -> list[dict]:
+    """One entry per event x method x regime, reducing over seeds.
+
+    Every seed of a cell enters its spread; there is no argument with which to
+    leave one out.
+    """
+    cells: dict[tuple[str, str, str], list[dict]] = {}
+    for row in rows:
+        cells.setdefault((row["event"], row["method"], row["regime"]), []).append(row)
+    out = []
+    for (event, method, regime), group in cells.items():
+        first = group[0]
+        out.append(
+            {
+                "event": event,
+                "method": method,
+                "regime": regime,
+                "regime_family": first["regime_family"],
+                "deployable": first["deployable"],
+                "ablation": first["ablation"],
+                "seeds": [r["seed"] for r in group],
+                "n_seeds": len(group),
+                **{m: _spread([r[m] for r in group]) for m in SUMMARISED},
+            }
+        )
+    return out
+
+
+def compare(summary: list[dict]) -> list[dict]:
+    """Every PAIRS gap, per event and regime, read against the seed ranges."""
+    index = {(c["event"], c["method"], c["regime"]): c for c in summary}
+    out = []
+    for (event, method, regime), a in index.items():
+        for first, second in PAIRS:
+            if method != first or (event, second, regime) not in index:
+                continue
+            b = index[(event, second, regime)]
+            entry = {"event": event, "regime": regime, "a": first, "b": second}
+            for metric in ("iou", "average_precision"):
+                separated = a[metric]["min"] > b[metric]["max"] or (
+                    b[metric]["min"] > a[metric]["max"]
+                )
+                entry[metric] = {
+                    "gap": a[metric]["mean"] - b[metric]["mean"],
+                    "separated": bool(separated),
+                }
+            out.append(entry)
+    return out
+
+
+def format_spread(spread: dict) -> str:
+    """mean ± sd (min–max) at 3 decimals; the mean alone for a single value.
+
+    This is the exact string the README quotes, so `check_readme` uses it too.
+    """
+    if spread["sd"] is None:
+        return f"{spread['mean']:.3f}"
+    return (
+        f"{spread['mean']:.3f} ± {spread['sd']:.3f} "
+        f"({spread['min']:.3f}–{spread['max']:.3f})"
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -325,12 +453,14 @@ def render_markdown(payload: dict) -> str:
     )
 
     lines.append("## The methods\n")
-    lines.append("| Method | Per-pixel inputs | Spatial context | Role |")
-    lines.append("|---|---|---|---|")
+    lines.append("| Method | Per-pixel inputs | Spatial context | Role | Seeds |")
+    lines.append("|---|---|---|---|---|")
     for method in payload["methods"]:
         role = "ablation" if method["ablation"] else "reported"
+        seeds = [s for s in method["seeds"] if s is not None]
         lines.append(
-            f"| {method['name']} | {method['inputs']} | {method['context']} | {role} |"
+            f"| {method['name']} | {method['inputs']} | {method['context']} | {role} | "
+            f"{len(seeds) if seeds else '— (deterministic)'} |"
         )
     lines.append("")
     lines.append(
@@ -361,47 +491,84 @@ def render_markdown(payload: dict) -> str:
     )
 
     lines.append("## The frozen thresholds\n")
-    lines.append("| Score | Threshold | F1 attained on the calibration blocks |")
-    lines.append("|---|---|---|")
-    for name, entry in payload["frozen_thresholds"].items():
+    lines.append("| Score | Seeds | Threshold | F1 attained on the calibration blocks |")
+    lines.append("|---|---|---|---|")
+    by_method: dict[str, list[dict]] = {}
+    for entry in payload["frozen_thresholds"]:
+        by_method.setdefault(entry["method"], []).append(entry)
+    for name, entries in by_method.items():
         lines.append(
-            f"| {name} | ≥ **{entry['value']:.4f}** | {entry['objective_value']:.3f} |"
+            f"| {name} | {len(entries)} | "
+            f"≥ {format_spread(_spread([e['value'] for e in entries]))} | "
+            f"{format_spread(_spread([e['objective_value'] for e in entries]))} |"
         )
     lines.append("")
     lines.append(
-        "Same function, same pixels, every method — then frozen. The attained F1 "
-        "values are not comparable to each other; each is the best its own score "
-        "can do on those pixels, and it is the procedure that is shared.\n"
+        "Same function, same pixels, every method and every seed — then frozen, "
+        "one threshold per seed. The attained F1 values are not comparable to "
+        "each other; each is the best its own score can do on those pixels, and "
+        "it is the procedure that is shared. Per-seed values are in "
+        "`regimes.json`.\n"
     )
 
     lines.append("## Results\n")
+    lines.append(
+        "IoU and AP are **mean ± sd (min–max)** over the seeds; a single number "
+        "is the dNBR, which has no seed. The other columns are seed means. "
+        "Per-seed rows are in `regimes.json`.\n"
+    )
     by_event: dict[str, list[dict]] = {}
-    for row in payload["rows"]:
-        by_event.setdefault(row["event"], []).append(row)
+    for cell in payload["summary"]:
+        by_event.setdefault(cell["event"], []).append(cell)
 
-    for event_id, rows in by_event.items():
+    for event_id, cells in by_event.items():
         lines.append(f"### {event_id}\n")
         lines.append(
-            "| Method | Regime | Deployable | IoU | F1 | Precision | Recall | AP | "
+            "| Method | Regime | Deployable | IoU | AP | F1 | Precision | Recall | "
             "Threshold | Area error |"
         )
         lines.append("|---|---|---|---|---|---|---|---|---|---|")
-        for row in rows:
-            mark = "yes" if row["deployable"] else "— *instrument*"
+        for cell in cells:
+            mark = "yes" if cell["deployable"] else "— *instrument*"
             lines.append(
-                f"| {row['method']} | {row['regime']} | {mark} | "
-                f"**{row['iou']:.3f}** | {row['f1']:.3f} | {row['precision']:.3f} | "
-                f"{row['recall']:.3f} | {row['average_precision']:.3f} | "
-                f"{row['threshold']:.3f} | {row['area_error_pct']:+.1f}% |"
+                f"| {cell['method']} | {cell['regime']} | {mark} | "
+                f"**{format_spread(cell['iou'])}** | "
+                f"{format_spread(cell['average_precision'])} | "
+                f"{cell['f1']['mean']:.3f} | {cell['precision']['mean']:.3f} | "
+                f"{cell['recall']['mean']:.3f} | {cell['threshold']['mean']:.3f} | "
+                f"{cell['area_error_pct']['mean']:+.1f}% |"
             )
         lines.append("")
 
     lines.append(
-        "AP is threshold-free, so it is constant down each method's four rows by "
-        "construction: it describes the score, and the regime only chooses where "
-        "to cut it. Comparing AP across methods is therefore the cleanest "
-        "statement of which score carries more separable signal, independent of "
-        "any operating point.\n"
+        "AP is threshold-free, so for each seed it is constant down a method's "
+        "four rows by construction: it describes the score, and the regime only "
+        "chooses where to cut it. Comparing AP across methods is therefore the "
+        "cleanest statement of which score carries more separable signal, "
+        "independent of any operating point.\n"
+    )
+
+    lines.append("## Gaps against seed spread\n")
+    lines.append(
+        f"Rule, fixed before any multi-seed result: {payload['separation_rule']}. "
+        "Gap = mean of the first method minus mean of the second.\n"
+    )
+    lines.append("| Event | Regime | Comparison | IoU gap | IoU | AP gap | AP |")
+    lines.append("|---|---|---|---|---|---|---|")
+    for c in payload["comparisons"]:
+        verdict = {True: "separated", False: "indistinguishable"}
+        lines.append(
+            f"| {c['event']} | {c['regime']} | {c['a']} − {c['b']} | "
+            f"{c['iou']['gap']:+.3f} | {verdict[c['iou']['separated']]} | "
+            f"{c['average_precision']['gap']:+.3f} | "
+            f"{verdict[c['average_precision']['separated']]} |"
+        )
+    lines.append("")
+    lines.append(
+        "Seed spread is variance of the training procedure on one training "
+        "event. It is a floor on the uncertainty of a gap, not an interval: a "
+        "gap separated here can still be within the variance across events, "
+        "which two transfer events cannot measure.\n"
     )
     lines.append(
         f"No interval is published anywhere in this table. The rule is unchanged: "
@@ -443,8 +610,8 @@ def main(argv: list[str] | None = None) -> None:
     json_path, md_path = write(cfg, payload)
 
     header = (
-        f"{'event':<14} {'method':<22} {'regime':<22} {'IoU':>7} {'prec':>7} "
-        f"{'rec':>7} {'AP':>7} {'depl':>6}"
+        f"{'event':<14} {'method':<22} {'regime':<22} {'seed':>9} {'IoU':>7} "
+        f"{'prec':>7} {'rec':>7} {'AP':>7} {'depl':>6}"
     )
     print(header)
     print("-" * len(header))
@@ -455,7 +622,7 @@ def main(argv: list[str] | None = None) -> None:
         last = row["event"]
         print(
             f"{row['event']:<14} {row['method']:<22} {row['regime']:<22} "
-            f"{row['iou']:>7.3f} {row['precision']:>7.3f} {row['recall']:>7.3f} "
+            f"{str(row['seed'] or '-'):>9} {row['iou']:>7.3f} {row['precision']:>7.3f} {row['recall']:>7.3f} "
             f"{row['average_precision']:>7.3f} {'yes' if row['deployable'] else 'no':>6}"
         )
     print()

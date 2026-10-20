@@ -148,7 +148,7 @@ def bootstrap_intervals(cfg: Config, domain: Domain, value: float) -> dict[str, 
         counts,
         iterations=int(settings["bootstrap_iterations"]),
         min_blocks=int(settings["min_blocks_for_interval"]),
-        seed=int(cfg.model["seed"]),
+        seed=cfg.evaluation_seed,
     )
 
 

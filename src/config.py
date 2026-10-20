@@ -159,6 +159,21 @@ class Config:
         return self.raw["pixel_model"]
 
     @property
+    def model_seeds(self) -> list[int]:
+        """Every U-Net training seed, in configured order."""
+        return [int(s) for s in self.model["seeds"]]
+
+    @property
+    def pixel_model_seeds(self) -> list[int]:
+        """Every pixel-model seed, in configured order."""
+        return [int(s) for s in self.pixel_model["seeds"]]
+
+    @property
+    def evaluation_seed(self) -> int:
+        """Bootstrap and threshold-estimation randomness; never a model's."""
+        return int(self.evaluation["seed"])
+
+    @property
     def band_assets(self) -> list[str]:
         """STAC asset keys of the four reflectance bands, in channel order."""
         return list(self.project["bands"].keys())
@@ -382,6 +397,22 @@ def _validate(cfg: Config) -> None:
             "evaluation.tiling.test.filter_negatives must be false: dropping negative "
             "tiles inflates precision by an arbitrary factor"
         )
+
+    # A model is trained once per configured seed and every seed is reported.
+    # A scalar `seed` would bring back the single run whose gaps nobody can read.
+    for section in ("model", "pixel_model"):
+        settings = cfg.raw.get(section) or {}
+        if "seed" in settings:
+            raise ConfigError(
+                f"{section}.seed is gone: list the seeds under {section}.seeds"
+            )
+        seeds = settings.get("seeds")
+        if not isinstance(seeds, list) or not seeds:
+            raise ConfigError(f"{section}.seeds must be a non-empty list")
+        if not all(isinstance(v, int) and not isinstance(v, bool) for v in seeds):
+            raise ConfigError(f"{section}.seeds must be integers, got {seeds!r}")
+        if len(set(seeds)) != len(seeds):
+            raise ConfigError(f"{section}.seeds repeats a seed: {seeds!r}")
 
     tile_px = int(cfg.project["tile_size_px"])
     tile_km = tile_px * cfg.resolution_m / 1000.0
