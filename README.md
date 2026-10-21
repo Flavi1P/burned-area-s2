@@ -2,7 +2,8 @@
 
 **Status, 21 October 2026.** Reproduced bit for bit from a clean clone
 ([`docs/reproduction.md`](docs/reproduction.md)). Every trained model is now
-run on 5 seeds. Not done yet: error maps, a pre-registered hold-out event.
+run on 5 seeds, and error maps show where each method fails. Not done yet: a
+pre-registered hold-out event.
 
 Burned-area mapping from Sentinel-2 pre/post pairs at 20 m. Trained on one
 Copernicus EMS fire (Saumos, pine). Tested on two unseen ones: Biscarrosse
@@ -27,7 +28,7 @@ gradient-boosting model (GB) and a U-Net — each under three threshold regimes.
 **Operational message:** on a new territory at 20 m, a frugal per-pixel model
 with a label-free threshold is the strongest deployable option measured here.
 
-![Fontainebleau: before, after, EMS label](outputs/quicklook_fontainebleau.png)
+![Fontainebleau: TP / FP / FN of each method at its frozen threshold](outputs/errors_fontainebleau.png)
 
 ## Results
 
@@ -85,9 +86,21 @@ GMM alternative fails everywhere.
 on Biscarrosse, AP 0.702 vs 0.675. That run was the U-Net's best seed there.
 Over 5 seeds it is 0.685 ± 0.011 vs 0.678 ± 0.004, which is indistinguishable.
 The same run was also the U-Net's best seed on Fontainebleau under the frozen
-threshold. The clearcut hypothesis built on that gap now has no gap to explain.
-The error maps will test it directly. We expect context to matter more at very
-high resolution. That is a hypothesis, not a result.
+threshold. The clearcut hypothesis built on that gap now has no gap to explain,
+so its test was dropped before any map existed rather than run in search of a
+story ([decisions](docs/decisions.md)). It stays unverified. We expect context to
+matter more at very high resolution. That is a hypothesis, not a result.
+
+**Where the errors are** ([Saumos](outputs/errors_saumos.png),
+[Biscarrosse](outputs/errors_biscarrosse.png) and its
+[zoom](outputs/errors_biscarrosse_zoom.png),
+[Fontainebleau](outputs/errors_fontainebleau.png); frozen threshold, median
+calibration seed). On Fontainebleau every method's error is mostly missed burn,
+the threshold failure the grid measures. On Biscarrosse the largest false
+positive is one contiguous patch that all three methods call burned, outside the
+EMS perimeter. That is consistent with burn the label does not contain (the
+post scene is 7 days after the label's imagery), not verified. The drawn U-Net
+seed happens to be its worst on Fontainebleau, and its maps show tile seams.
 
 ## Limits
 
@@ -139,6 +152,7 @@ python -m src.model.train --experiment E1    # ~11 min per seed, 5 seeds, CPU
 python -m src.model.predict --experiment E1 && python -m src.model.evaluate
 python -m src.eval.pixel_model               # GB per-pixel control
 python -m src.eval.regimes                   # methods x regimes grid
+python -m src.viz.errors                     # TP / FP / FN maps, median seed
 python -m src.eval.check_readme              # README numbers == outputs/*.json
 pytest -q -rs
 ```

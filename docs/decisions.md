@@ -131,3 +131,22 @@ Written and committed before any error map existed.
 - **Zoom.** Biscarrosse, a 128 px window placed where FPs are densest, summed
   over the methods drawn. A rule, so the window is not picked to flatter one
   method.
+
+## 2026-10-21 — Error maps drawn: what they show
+
+Run once under the rule above. Drawn seeds: GB 20260821, U-Net 20260823.
+`outputs/errors.json` reproduces the frozen rows of `regimes.json` for those
+seeds exactly, and a test holds it to that.
+- **The rule did not flatter the U-Net.** Its drawn seed is the U-Net's worst on
+  Fontainebleau under the frozen threshold (IoU 0.394, the bottom of its range).
+  The rule reads calibration blocks only, so this is how it fell, not a choice.
+- **Fontainebleau:** every method's error is mostly false negatives, which is
+  the frozen-threshold failure in map form.
+- **Biscarrosse:** the largest FP area is one contiguous patch that all three
+  methods call burned, just outside the EMS perimeter, and it looks burned in
+  the composite. That is consistent with burn missing from the label: the post
+  scene (2 Aug) is 7 days after the label's imagery (26 Jul). Not verified, and
+  nothing was changed because of it. Noticed on a test event, so it is reported
+  here and not acted on.
+- **U-Net tile seams** are visible in the maps: straight-line discontinuities at
+  tile edges.
