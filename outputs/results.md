@@ -1,6 +1,6 @@
 # Results — U-Net against the dNBR baseline
 
-Generated 2026-08-22T20:37:14 from `config.yaml` by `python -m src.model.evaluate`, which recomputes both methods in one pass. Every cell below -- both methods, every event -- comes from the same domain, metric, threshold and bootstrap code in `src/eval/`; the network contributes a probability raster and nothing else. Both decision thresholds were fitted by maximising F1 on the same held-out calibration blocks of the training event, frozen there, and applied unchanged to every test event.
+Generated 2026-10-21T10:22:13 from `config.yaml` by `python -m src.model.evaluate`, which recomputes both methods in one pass. Every cell below -- both methods, every event -- comes from the same domain, metric, threshold and bootstrap code in `src/eval/`; the network contributes a probability raster and nothing else. Both decision thresholds were fitted by maximising F1 on the same held-out calibration blocks of the training event, frozen there, and applied unchanged to every test event.
 
 ## The decision thresholds
 

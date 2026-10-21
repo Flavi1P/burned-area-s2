@@ -1,6 +1,6 @@
 {
   "experiment": "E1",
-  "generated": "2026-08-22T20:29:50",
+  "generated": "2026-10-20T21:31:32",
   "train_event": "saumos",
   "epochs": 40,
   "seed": 20260821,
@@ -71,7 +71,7 @@
     "fitted_on": "saumos, train blocks (r1c0, r1c1, r2c0), cloud-free pixels only",
     "n_pixels": 1410610
   },
-  "wall_seconds": 609.5,
+  "wall_seconds": 708.7,
   "history": [
     {
       "epoch": 1,
@@ -88,7 +88,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.41976
       },
-      "seconds": 14.4
+      "seconds": 17.8
     },
     {
       "epoch": 2,
@@ -105,7 +105,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.21718
       },
-      "seconds": 29.0
+      "seconds": 35.1
     },
     {
       "epoch": 3,
@@ -122,7 +122,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.17957
       },
-      "seconds": 45.0
+      "seconds": 52.4
     },
     {
       "epoch": 4,
@@ -139,7 +139,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.1707
       },
-      "seconds": 59.9
+      "seconds": 70.0
     },
     {
       "epoch": 5,
@@ -156,7 +156,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.19622
       },
-      "seconds": 76.1
+      "seconds": 87.4
     },
     {
       "epoch": 6,
@@ -173,7 +173,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.18893
       },
-      "seconds": 91.3
+      "seconds": 104.5
     },
     {
       "epoch": 7,
@@ -190,7 +190,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.16942
       },
-      "seconds": 106.7
+      "seconds": 122.2
     },
     {
       "epoch": 8,
@@ -207,7 +207,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.1606
       },
-      "seconds": 121.7
+      "seconds": 139.3
     },
     {
       "epoch": 9,
@@ -224,7 +224,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.15089
       },
-      "seconds": 136.9
+      "seconds": 156.4
     },
     {
       "epoch": 10,
@@ -241,7 +241,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.13634
       },
-      "seconds": 151.8
+      "seconds": 173.6
     },
     {
       "epoch": 11,
@@ -258,7 +258,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.12242
       },
-      "seconds": 167.0
+      "seconds": 191.3
     },
     {
       "epoch": 12,
@@ -275,7 +275,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.11033
       },
-      "seconds": 182.3
+      "seconds": 208.5
     },
     {
       "epoch": 13,
@@ -292,7 +292,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.10617
       },
-      "seconds": 197.3
+      "seconds": 225.9
     },
     {
       "epoch": 14,
@@ -309,7 +309,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.09531
       },
-      "seconds": 212.9
+      "seconds": 243.4
     },
     {
       "epoch": 15,
@@ -326,7 +326,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.09108
       },
-      "seconds": 228.0
+      "seconds": 261.7
     },
     {
       "epoch": 16,
@@ -343,7 +343,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.08614
       },
-      "seconds": 243.3
+      "seconds": 279.0
     },
     {
       "epoch": 17,
@@ -360,7 +360,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.08502
       },
-      "seconds": 258.3
+      "seconds": 296.5
     },
     {
       "epoch": 18,
@@ -377,7 +377,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.07175
       },
-      "seconds": 273.2
+      "seconds": 313.9
     },
     {
       "epoch": 19,
@@ -394,7 +394,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.07081
       },
-      "seconds": 288.4
+      "seconds": 331.5
     },
     {
       "epoch": 20,
@@ -411,7 +411,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.07327
       },
-      "seconds": 304.0
+      "seconds": 348.9
     },
     {
       "epoch": 21,
@@ -428,7 +428,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.07962
       },
-      "seconds": 319.4
+      "seconds": 366.3
     },
     {
       "epoch": 22,
@@ -445,7 +445,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.07359
       },
-      "seconds": 335.0
+      "seconds": 383.5
     },
     {
       "epoch": 23,
@@ -462,7 +462,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.0731
       },
-      "seconds": 350.3
+      "seconds": 400.7
     },
     {
       "epoch": 24,
@@ -479,7 +479,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06816
       },
-      "seconds": 365.0
+      "seconds": 417.9
     },
     {
       "epoch": 25,
@@ -496,7 +496,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.07125
       },
-      "seconds": 379.5
+      "seconds": 435.9
     },
     {
       "epoch": 26,
@@ -513,7 +513,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06653
       },
-      "seconds": 393.9
+      "seconds": 453.0
     },
     {
       "epoch": 27,
@@ -530,7 +530,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06465
       },
-      "seconds": 408.8
+      "seconds": 470.5
     },
     {
       "epoch": 28,
@@ -547,7 +547,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06198
       },
-      "seconds": 424.4
+      "seconds": 489.5
     },
     {
       "epoch": 29,
@@ -564,7 +564,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06062
       },
-      "seconds": 440.1
+      "seconds": 507.7
     },
     {
       "epoch": 30,
@@ -581,7 +581,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.05887
       },
-      "seconds": 455.6
+      "seconds": 525.1
     },
     {
       "epoch": 31,
@@ -598,7 +598,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.05943
       },
-      "seconds": 471.1
+      "seconds": 543.1
     },
     {
       "epoch": 32,
@@ -615,7 +615,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06177
       },
-      "seconds": 486.4
+      "seconds": 560.7
     },
     {
       "epoch": 33,
@@ -632,7 +632,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06238
       },
-      "seconds": 501.5
+      "seconds": 577.6
     },
     {
       "epoch": 34,
@@ -649,7 +649,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.05862
       },
-      "seconds": 516.7
+      "seconds": 596.7
     },
     {
       "epoch": 35,
@@ -666,7 +666,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.05705
       },
-      "seconds": 532.4
+      "seconds": 613.9
     },
     {
       "epoch": 36,
@@ -683,7 +683,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.05822
       },
-      "seconds": 548.0
+      "seconds": 631.6
     },
     {
       "epoch": 37,
@@ -700,7 +700,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.05767
       },
-      "seconds": 563.2
+      "seconds": 650.5
     },
     {
       "epoch": 38,
@@ -717,7 +717,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06207
       },
-      "seconds": 578.3
+      "seconds": 671.3
     },
     {
       "epoch": 39,
@@ -734,7 +734,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06487
       },
-      "seconds": 593.4
+      "seconds": 690.1
     },
     {
       "epoch": 40,
@@ -751,7 +751,7 @@
         "burned_pixels": 16653,
         "mean_probability": 0.06166
       },
-      "seconds": 609.0
+      "seconds": 708.1
     }
   ]
 }
