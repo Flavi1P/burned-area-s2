@@ -107,3 +107,27 @@ Seed 20260821 reproduced all 48 August cells exactly. Under the rule above:
 - **Caveat on GB's narrow spread.** Its 1 410 610 train-role pixels are under
   `max_train_pixels`, so its seed moves only the early-stopping split. That is
   less training noise than the U-Net has, partly by construction.
+
+## 2026-10-21 — Phase 2 narrowed to error maps; drawn seed fixed before any map
+
+Written and committed before any error map existed.
+- **Morphology test dropped, not run.** It was designed to explain the
+  Biscarrosse AP gap by clearcuts: FPs that GB makes and the U-Net avoids would
+  be more rectangular. Over five seeds that gap is indistinguishable (entry
+  above). With no measured effect, an FP-shape statistic could only go looking
+  for a story. The clearcut hypothesis stays unverified and is worded as such.
+  If a context effect is ever measured (very high resolution is the expected
+  place), the test can be pre-registered then.
+- **What remains.** TP / FP / FN maps for every method (dNBR, GB, U-Net) at its
+  frozen threshold, over the post-fire false-colour composite, on all three
+  events. Diagnostics: no README number is read off them.
+- **Drawn seed.** For each trained model, the seed whose frozen-threshold IoU on
+  the Saumos calibration blocks is the median of the five (ties: lowest seed).
+  No test event is consulted. The rule was chosen with the user before the
+  selected seeds were looked up. The per-seed calibration F1 values were already
+  public in `outputs/regimes.json`, and IoU is monotone in F1, so the selection
+  was computable from published numbers; it was not computed first. The rule
+  lives in `config.yaml` (`error_maps.representative_seed`).
+- **Zoom.** Biscarrosse, a 128 px window placed where FPs are densest, summed
+  over the methods drawn. A rule, so the window is not picked to flatter one
+  method.
