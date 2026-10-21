@@ -136,6 +136,7 @@ def test_shipped_frozen_file_holds_only_frozen_thresholds(cfg):
 # --------------------------------------------------------------------------- #
 
 
+@pytest.mark.usefixtures("rasters")
 def test_pixel_model_trains_only_on_train_role_ground(cfg):
     """It has no tiles, so it cannot straddle a seam -- but it can still be
     handed the wrong pixels, and that is the leak this checks."""
