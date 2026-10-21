@@ -80,3 +80,30 @@ Written and committed before any multi-seed result existed.
   seed ranges [min, max] do not overlap. Otherwise the gap is
   "indistinguishable at this sample size". The sd is the sample sd (ddof = 1).
 - **Historical table.** `outputs/results.md` keeps scoring the first seed only.
+
+## 2026-10-21 — Five-seed results: what held, what did not (`c909fca`)
+
+Seed 20260821 reproduced all 48 August cells exactly. Under the rule above:
+
+| Claim (single run) | After 5 seeds | Status |
+|---|---|---|
+| GB matches the U-Net on pine (Saumos 0.881 vs 0.863, Biscarrosse 0.561 vs 0.571) | Saumos 0.887 vs 0.865, separated, GB ahead. Biscarrosse 0.563 vs 0.557, indistinguishable | holds (Saumos: GB ahead) |
+| Context edge on Biscarrosse ranking (AP 0.702 vs 0.675) | 0.685 ± 0.011 vs 0.678 ± 0.004, indistinguishable. 0.702 was the U-Net's best seed | dropped |
+| U-Net transfers better under the frozen threshold on Fontainebleau (0.556 vs 0.487) | 0.489 ± 0.068 (0.394–0.556) vs 0.500 ± 0.011, indistinguishable. 0.556 was the U-Net's best seed | dropped |
+| GB ranks better than the U-Net on Fontainebleau (AP 0.887 vs 0.830) | 0.885 vs 0.828, separated | holds |
+| dNBR frozen threshold fails on Fontainebleau (0.192 vs oracle 0.624) | no seed: unchanged | holds |
+| GB + Otsu beats the dNBR oracle on Fontainebleau (0.696 vs 0.624) | 0.697 ± 0.006, separated. Also beats U-Net + Otsu (0.611 ± 0.030) | holds; still rests on Otsu chosen after the fact |
+| Otsu costs IoU where frozen was right (Saumos GB 0.881 → 0.797) | 0.887 → 0.846 ± 0.028. 0.797 was GB's worst seed | weakened (smaller cost) |
+| GMM fails everywhere | every seed | holds |
+| — | The U-Net is never ahead of GB beyond seed noise, in any cell | new |
+| — | The U-Net's frozen operating point is unstable in transfer: Fontainebleau sd 0.068, frozen threshold 0.814–0.889 | new |
+
+- **Pattern.** The original run was a favourable draw for the U-Net in
+  transfer: it was the best of the five seeds on Biscarrosse IoU and AP and on
+  Fontainebleau frozen IoU. Nobody chose it; it was the only run.
+- **Consequence for T4.3.** The clearcut hypothesis was proposed to explain the
+  Biscarrosse AP gap, and that gap is gone. The error-map test (handoff phase 2)
+  still runs as planned, but it now tests a hypothesis with nothing to explain.
+- **Caveat on GB's narrow spread.** Its 1 410 610 train-role pixels are under
+  `max_train_pixels`, so its seed moves only the early-stopping split. That is
+  less training noise than the U-Net has, partly by construction.

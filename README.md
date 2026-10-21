@@ -1,8 +1,8 @@
 # burned-area-s2
 
-**Status, 20 October 2026.** Reproduced bit for bit from a clean clone
-([`docs/reproduction.md`](docs/reproduction.md)). Not done yet: spread over
-several seeds, error maps, a pre-registered hold-out event.
+**Status, 21 October 2026.** Reproduced bit for bit from a clean clone
+([`docs/reproduction.md`](docs/reproduction.md)). Every trained model is now
+run on 5 seeds. Not done yet: error maps, a pre-registered hold-out event.
 
 Burned-area mapping from Sentinel-2 pre/post pairs at 20 m. Trained on one
 Copernicus EMS fire (Saumos, pine). Tested on two unseen ones: Biscarrosse
@@ -12,14 +12,17 @@ gradient-boosting model (GB) and a U-Net — each under three threshold regimes.
 ## TL;DR
 
 - **A per-pixel model matches the U-Net.** GB, which sees no neighbouring pixel,
-  scores IoU 0.881 vs 0.863 on held-out Saumos and 0.561 vs 0.571 on Biscarrosse.
+  scores IoU 0.887 ± 0.004 vs 0.865 ± 0.006 on held-out Saumos (GB ahead beyond
+  seed noise), and 0.563 vs 0.557 on Biscarrosse (indistinguishable).
 - **Transfer fails on the threshold, not the score.** On Fontainebleau the dNBR
   ranks pixels well (AP 0.839), but its frozen threshold gives IoU 0.192, against
   0.624 for the best possible threshold.
-- **A threshold set without labels repairs it.** GB + Otsu reaches IoU 0.696 on
-  Fontainebleau, within 0.005 of its own oracle, with no test label used.
-- **Caveat:** each model was trained once (one seed), and Otsu was chosen after
-  seeing the test events. See [Limits](#limits).
+- **A threshold set without labels repairs it.** GB + Otsu reaches IoU
+  0.697 ± 0.006 on Fontainebleau, within 0.003 of its own oracle, with no test
+  label used.
+- **Caveat:** ± is the sd over 5 training seeds. That is a floor on the
+  uncertainty, not a confidence interval. Otsu was chosen after seeing the test
+  events. See [Limits](#limits).
 
 **Operational message:** on a new territory at 20 m, a frugal per-pixel model
 with a label-free threshold is the strongest deployable option measured here.
@@ -28,22 +31,23 @@ with a label-free threshold is the strongest deployable option measured here.
 
 ## Results
 
-IoU per threshold regime, and AP, which needs no threshold. Source:
-[`outputs/regimes.json`](outputs/regimes.json). The full grid, with the GMM
-estimator and a change-only GB ablation, is in
-[`outputs/regimes.md`](outputs/regimes.md).
+IoU per threshold regime, and AP, which needs no threshold. GB and U-Net cells
+are mean ± sd over 5 seeds. The dNBR has no seed. Source:
+[`outputs/regimes.json`](outputs/regimes.json). The full grid, with min–max per
+cell, the GMM estimator, a change-only GB ablation and every gap read against
+the seed spread, is in [`outputs/regimes.md`](outputs/regimes.md).
 
 | Event | Method | frozen | Otsu | *oracle* | AP |
 |---|---|---|---|---|---|
 | saumos | dNBR | 0.702 | 0.811 | *0.812* | 0.906 |
-| saumos | GB pixel | 0.881 | 0.797 | *0.893* | 0.981 |
-| saumos | U-Net | 0.863 | 0.857 | *0.875* | 0.976 |
+| saumos | GB pixel | 0.887 ± 0.004 | 0.846 ± 0.028 | *0.902 ± 0.006* | 0.983 ± 0.002 |
+| saumos | U-Net | 0.865 ± 0.006 | 0.841 ± 0.019 | *0.870 ± 0.006* | 0.969 ± 0.013 |
 | biscarrosse | dNBR | 0.481 | 0.501 | *0.526* | 0.641 |
-| biscarrosse | GB pixel | 0.561 | 0.558 | *0.568* | 0.675 |
-| biscarrosse | U-Net | 0.571 | 0.533 | *0.571* | 0.702 |
+| biscarrosse | GB pixel | 0.563 ± 0.001 | 0.559 ± 0.001 | *0.569 ± 0.001* | 0.678 ± 0.004 |
+| biscarrosse | U-Net | 0.557 ± 0.009 | 0.529 ± 0.009 | *0.559 ± 0.009* | 0.685 ± 0.011 |
 | fontainebleau | dNBR | 0.192 | 0.466 | *0.624* | 0.839 |
-| fontainebleau | GB pixel | 0.487 | 0.696 | *0.701* | 0.887 |
-| fontainebleau | U-Net | 0.556 | 0.599 | *0.621* | 0.830 |
+| fontainebleau | GB pixel | 0.500 ± 0.011 | 0.697 ± 0.006 | *0.700 ± 0.004* | 0.885 ± 0.002 |
+| fontainebleau | U-Net | 0.489 ± 0.068 | 0.611 ± 0.030 | *0.629 ± 0.018* | 0.828 ± 0.015 |
 
 - **Frozen:** F1-optimal on Saumos calibration blocks, frozen before test, with
   the same procedure for every method.
@@ -51,16 +55,20 @@ estimator and a change-only GB ablation, is in
   deployable.
 - **Oracle:** fitted on the target's labels. It is an instrument, not a result.
 
+- **A gap counts** only when the two methods' seed ranges do not overlap. The
+  rule was fixed before the runs ([`docs/decisions.md`](docs/decisions.md)).
+
 Saumos rows are its held-out test blocks.
-[`outputs/results.md`](outputs/results.md) is the historical two-method table
-(no GB, no U-Net oracle). Its numbers agree with this one.
+[`outputs/results.md`](outputs/results.md) is the historical two-method table:
+the original single run (seed 20260821), with no GB and no U-Net oracle.
 
 ## Key findings
 
 **At 20 m the information is mostly spectral.** GB sees eight channels per
-pixel and no context. On pine it matches or beats the U-Net. On Fontainebleau it
-ranks pixels better than the U-Net (AP 0.887 vs 0.830). Under the frozen
-threshold, though, the U-Net transfers better there (0.556 vs 0.487).
+pixel and no context. It beats the U-Net on held-out Saumos and is
+indistinguishable from it on Biscarrosse. On Fontainebleau it ranks pixels
+better (AP 0.885 vs 0.828, separated). Under the frozen threshold the two are
+indistinguishable there (0.500 vs 0.489). The U-Net's seeds span 0.394–0.556.
 
 **The main transfer failure is the threshold.** On Fontainebleau the dNBR's AP
 (0.839) is close to its in-domain value, yet the frozen threshold misses 80% of
@@ -68,20 +76,26 @@ the burned area. Every method gains more from re-thresholding there than from
 changing the score.
 
 **A label-free threshold on a per-pixel score is the best deployable option**
-on the unseen biome: GB + Otsu at 0.696 beats the dNBR oracle (0.624). It is
-not free. Where the frozen threshold was already right, Otsu costs IoU (Saumos
-GB 0.881 → 0.797), and the GMM alternative fails everywhere.
+on the unseen biome. GB + Otsu at 0.697 beats the dNBR oracle (0.624) and
+U-Net + Otsu (0.611), both beyond seed noise. It is not free. Where the frozen
+threshold was already right, Otsu costs IoU (Saumos GB 0.887 → 0.846), and the
+GMM alternative fails everywhere.
 
-**Context keeps an edge in one place only:** ranking on Biscarrosse (AP 0.702
-vs 0.675). The hypothesis is clearcuts — rectangular, sharp-edged, dNBR-like —
-which only a receptive field can reject. The numbers are *consistent with* it;
-it is not *verified* until the error maps exist. We expect context to matter
-more at very high resolution. That is a hypothesis, not a result.
+**No measurable edge for context at 20 m.** The single run showed one: ranking
+on Biscarrosse, AP 0.702 vs 0.675. That run was the U-Net's best seed there.
+Over 5 seeds it is 0.685 ± 0.011 vs 0.678 ± 0.004, which is indistinguishable.
+The same run was also the U-Net's best seed on Fontainebleau under the frozen
+threshold. The clearcut hypothesis built on that gap now has no gap to explain.
+The error maps will test it directly. We expect context to matter more at very
+high resolution. That is a hypothesis, not a result.
 
 ## Limits
 
-- **One seed per model.** Gaps of 0.01–0.03 between GB and U-Net are not
-  interpretable until the spread over 5 seeds is measured.
+- **Seed spread is a floor, not an interval.** It measures training noise on
+  one training event, not variance across events. GB's spread is narrow partly
+  by construction: its 1.41 M training pixels are under the subsample cap, so
+  its seed moves only the early-stopping split
+  ([`outputs/pixel_model.json`](outputs/pixel_model.json)).
 - **Two transfer events, no confidence intervals.** The bootstrap resamples
   ~17.5 km blocks that contain burn, and no domain here has the 4 it needs.
   Intervals are declared missing rather than faked
@@ -102,6 +116,10 @@ more at very high resolution. That is a hypothesis, not a result.
 - **Why 20 m?** B8A/B11/B12 are native at 20 m, and the EMS polygons are
   digitised at 1:15 000. At 10 m a per-pixel score would mostly measure the
   analyst's hand.
+- **Are the gaps larger than seed noise?** GB vs dNBR: almost everywhere.
+  U-Net vs GB: in 5 of 9 IoU cells (GMM aside) and 1 of 3 AP cells, always with
+  GB ahead. The U-Net is never ahead beyond seed noise
+  ([`outputs/regimes.md`](outputs/regimes.md)).
 - **Why these events, and so few?** Each needs a final EMS delineation and a
   clear Sentinel-2 pair. Biscarrosse is a size control (same biome as Saumos,
   same size as Fontainebleau), so a size effect is not mistaken for a biome
@@ -109,9 +127,11 @@ more at very high resolution. That is a hypothesis, not a result.
 - **Minority class?** The loss is BCE + Dice. The threshold is F1-optimal on
   calibration blocks with 2.2% prevalence. AP is reported without a threshold,
   and global accuracy is refused by the code.
-- **Cost?** U-Net (24.5 M parameters, 40 epochs, 70 tiles): about 10 min on 16
-  CPU threads ([`outputs/training_e1.json`](outputs/training_e1.json)). The full
-  chain takes about 25 min on CPU ([`docs/reproduction.md`](docs/reproduction.md)).
+- **Cost?** U-Net (24.5 M parameters, 40 epochs, 70 tiles): 10–12 min per seed
+  on 16 CPU threads, about 55 min for 5 seeds
+  ([`outputs/training_e1_s*.json`](outputs/training_e1_s20260821.json)). GB: about
+  1 min per fit. The single-seed chain took about 25 min
+  ([`docs/reproduction.md`](docs/reproduction.md)); with 5 seeds, about 1 h 20.
   No GPU.
 
 ## Method
@@ -138,7 +158,7 @@ python -m src.data.stack                     # 8-channel stacks + validity masks
 python -m src.eval.blocks                    # spatial blocks and roles
 python -m src.eval.dnbr && python -m src.eval.baseline
 python -m src.data.tiles && python -m src.model.dataset
-python -m src.model.train --experiment E1    # ~10 min, CPU
+python -m src.model.train --experiment E1    # ~11 min per seed, 5 seeds, CPU
 python -m src.model.predict --experiment E1 && python -m src.model.evaluate
 python -m src.eval.pixel_model               # GB per-pixel control
 python -m src.eval.regimes                   # methods x regimes grid
