@@ -1,5 +1,7 @@
 # burned-area-s2
 
+[![tests](https://github.com/Flavi1P/burned-area-s2/actions/workflows/tests.yml/badge.svg)](https://github.com/Flavi1P/burned-area-s2/actions/workflows/tests.yml)
+
 **Status, 21 October 2026.** Reproduced bit for bit from a clean clone
 ([`docs/reproduction.md`](docs/reproduction.md)). Every trained model is now
 run on 5 seeds, and error maps show where each method fails. Not done yet: a
