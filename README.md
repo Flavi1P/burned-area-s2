@@ -111,29 +111,6 @@ high resolution. That is a hypothesis, not a result.
 - **ImageNet encoder on SWIR bands:** kept as a regularising initialisation for
   70 tiles. Not ablated.
 
-## FAQ
-
-- **Why 20 m?** B8A/B11/B12 are native at 20 m, and the EMS polygons are
-  digitised at 1:15 000. At 10 m a per-pixel score would mostly measure the
-  analyst's hand.
-- **Are the gaps larger than seed noise?** GB vs dNBR: almost everywhere.
-  U-Net vs GB: in 5 of 9 IoU cells (GMM aside) and 1 of 3 AP cells, always with
-  GB ahead. The U-Net is never ahead beyond seed noise
-  ([`outputs/regimes.md`](outputs/regimes.md)).
-- **Why these events, and so few?** Each needs a final EMS delineation and a
-  clear Sentinel-2 pair. Biscarrosse is a size control (same biome as Saumos,
-  same size as Fontainebleau), so a size effect is not mistaken for a biome
-  effect.
-- **Minority class?** The loss is BCE + Dice. The threshold is F1-optimal on
-  calibration blocks with 2.2% prevalence. AP is reported without a threshold,
-  and global accuracy is refused by the code.
-- **Cost?** U-Net (24.5 M parameters, 40 epochs, 70 tiles): 10–12 min per seed
-  on 16 CPU threads, about 55 min for 5 seeds
-  ([`outputs/training_e1_s*.json`](outputs/training_e1_s20260821.json)). GB: about
-  1 min per fit. The single-seed chain took about 25 min
-  ([`docs/reproduction.md`](docs/reproduction.md)); with 5 seeds, about 1 h 20.
-  No GPU.
-
 ## Method
 
 - **Split.** By event. Inside Saumos, by ~17.5 km spatial blocks
