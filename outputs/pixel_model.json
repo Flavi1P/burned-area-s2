@@ -1,5 +1,12 @@
 {
   "estimator": "sklearn.HistGradientBoostingClassifier",
+  "seeds": [
+    20260821,
+    20260822,
+    20260823,
+    20260824,
+    20260825
+  ],
   "runs": [
     {
       "event": "saumos",
@@ -31,10 +38,11 @@
         "post_swir22"
       ],
       "feature_set": "full",
+      "seed": 20260821,
       "rasters": [
-        "saumos/gb_prob_full.tif",
-        "biscarrosse/gb_prob_full.tif",
-        "fontainebleau/gb_prob_full.tif"
+        "saumos/gb_prob_full_s20260821.tif",
+        "biscarrosse/gb_prob_full_s20260821.tif",
+        "fontainebleau/gb_prob_full_s20260821.tif"
       ],
       "importance": [
         {
@@ -132,6 +140,482 @@
       "prevalence": 0.24213,
       "features": [
         "dnbr",
+        "pre_nbr",
+        "post_nbr",
+        "dndvi",
+        "pre_ndvi",
+        "post_ndvi",
+        "dnbr2",
+        "post_nbr2",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22",
+        "post_red",
+        "post_nir08",
+        "post_swir16",
+        "post_swir22"
+      ],
+      "feature_set": "full",
+      "seed": 20260822,
+      "rasters": [
+        "saumos/gb_prob_full_s20260822.tif",
+        "biscarrosse/gb_prob_full_s20260822.tif",
+        "fontainebleau/gb_prob_full_s20260822.tif"
+      ],
+      "importance": [
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.4464259131685833,
+          "sd": 0.0038122348054050303
+        },
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.34084796559172775,
+          "sd": 0.006440637180678103
+        },
+        {
+          "feature": "post_nir08",
+          "drop_in_ap": 0.14606662165944695,
+          "sd": 0.004144036972673027
+        },
+        {
+          "feature": "post_swir22",
+          "drop_in_ap": 0.11006186147357726,
+          "sd": 0.003802905779853685
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.07826515114774169,
+          "sd": 0.0015056857852687585
+        },
+        {
+          "feature": "post_red",
+          "drop_in_ap": 0.032190062749452054,
+          "sd": 0.0019279856725650643
+        },
+        {
+          "feature": "post_ndvi",
+          "drop_in_ap": 0.01426780557315214,
+          "sd": 0.0009304971022356755
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.010366912759356603,
+          "sd": 0.0017884218972399333
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.008331470811611119,
+          "sd": 0.0018045284975244625
+        },
+        {
+          "feature": "post_swir16",
+          "drop_in_ap": 0.0056252271165275385,
+          "sd": 0.001475075070363903
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.0045274364467993156,
+          "sd": 0.0009377229679408952
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.0028702629940706714,
+          "sd": 0.0005197926013500755
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.0012226686926623727,
+          "sd": 0.0018340062461435899
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": -0.00036589431509725934,
+          "sd": 0.0008916919012943006
+        },
+        {
+          "feature": "post_nbr2",
+          "drop_in_ap": -0.004070437298573593,
+          "sd": 0.000984478286432202
+        },
+        {
+          "feature": "post_nbr",
+          "drop_in_ap": -0.009808376390091947,
+          "sd": 0.002283022889692221
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "pre_nbr",
+        "post_nbr",
+        "dndvi",
+        "pre_ndvi",
+        "post_ndvi",
+        "dnbr2",
+        "post_nbr2",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22",
+        "post_red",
+        "post_nir08",
+        "post_swir16",
+        "post_swir22"
+      ],
+      "feature_set": "full",
+      "seed": 20260823,
+      "rasters": [
+        "saumos/gb_prob_full_s20260823.tif",
+        "biscarrosse/gb_prob_full_s20260823.tif",
+        "fontainebleau/gb_prob_full_s20260823.tif"
+      ],
+      "importance": [
+        {
+          "feature": "post_nir08",
+          "drop_in_ap": 0.674081745258407,
+          "sd": 0.000755555053376821
+        },
+        {
+          "feature": "post_swir22",
+          "drop_in_ap": 0.4432907963503041,
+          "sd": 0.004003179729598697
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.3863742772374789,
+          "sd": 0.0054461989844597864
+        },
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.32576269195824886,
+          "sd": 0.0014471793978894385
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.19225410907820348,
+          "sd": 0.004255276207807159
+        },
+        {
+          "feature": "post_swir16",
+          "drop_in_ap": 0.18336950287860376,
+          "sd": 0.005901625010725802
+        },
+        {
+          "feature": "post_ndvi",
+          "drop_in_ap": 0.17121760255784566,
+          "sd": 0.0072099012308312034
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.06478525394719929,
+          "sd": 0.0020620090563376616
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.013546019510953836,
+          "sd": 0.0030212080650012674
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.006026791078691529,
+          "sd": 0.0003053000163099042
+        },
+        {
+          "feature": "post_nbr",
+          "drop_in_ap": 0.00593687357846399,
+          "sd": 0.0011314413189988325
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.005412000083005686,
+          "sd": 0.0006221567322349313
+        },
+        {
+          "feature": "post_nbr2",
+          "drop_in_ap": 0.005227695393041798,
+          "sd": 0.0003402071324952517
+        },
+        {
+          "feature": "post_red",
+          "drop_in_ap": 0.004784846891720651,
+          "sd": 0.0007206322110468983
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.0031447455677182656,
+          "sd": 0.0007431266790794449
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": 6.592393860327395e-05,
+          "sd": 8.114812920061103e-05
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "pre_nbr",
+        "post_nbr",
+        "dndvi",
+        "pre_ndvi",
+        "post_ndvi",
+        "dnbr2",
+        "post_nbr2",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22",
+        "post_red",
+        "post_nir08",
+        "post_swir16",
+        "post_swir22"
+      ],
+      "feature_set": "full",
+      "seed": 20260824,
+      "rasters": [
+        "saumos/gb_prob_full_s20260824.tif",
+        "biscarrosse/gb_prob_full_s20260824.tif",
+        "fontainebleau/gb_prob_full_s20260824.tif"
+      ],
+      "importance": [
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.43282387971145453,
+          "sd": 0.006811795702457176
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.20536025235984176,
+          "sd": 0.005077961811894016
+        },
+        {
+          "feature": "post_swir22",
+          "drop_in_ap": 0.12606180366957545,
+          "sd": 0.0034161968006584877
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.057201540741005065,
+          "sd": 0.0018827413530415583
+        },
+        {
+          "feature": "post_nir08",
+          "drop_in_ap": 0.0447703186145035,
+          "sd": 0.0014281900508784546
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.0368498043509445,
+          "sd": 0.0003608054553833246
+        },
+        {
+          "feature": "post_ndvi",
+          "drop_in_ap": 0.019058554098989416,
+          "sd": 0.0017174331917534109
+        },
+        {
+          "feature": "post_nbr",
+          "drop_in_ap": 0.015126509164351468,
+          "sd": 0.0019118959926631713
+        },
+        {
+          "feature": "post_swir16",
+          "drop_in_ap": 0.014550151912237555,
+          "sd": 0.0004443090668703443
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.004663284026209931,
+          "sd": 0.0004706098275690661
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.004570181517860779,
+          "sd": 0.0002813269511294125
+        },
+        {
+          "feature": "post_red",
+          "drop_in_ap": 0.003356409217810404,
+          "sd": 0.0008209102088427773
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.0028478372693507836,
+          "sd": 0.0003539655612612648
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.0013079788289348155,
+          "sd": 6.212023921205535e-05
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": 0.0006049295283133324,
+          "sd": 0.00013424670715482358
+        },
+        {
+          "feature": "post_nbr2",
+          "drop_in_ap": -0.0009727306178859049,
+          "sd": 0.0013331694992459338
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "pre_nbr",
+        "post_nbr",
+        "dndvi",
+        "pre_ndvi",
+        "post_ndvi",
+        "dnbr2",
+        "post_nbr2",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22",
+        "post_red",
+        "post_nir08",
+        "post_swir16",
+        "post_swir22"
+      ],
+      "feature_set": "full",
+      "seed": 20260825,
+      "rasters": [
+        "saumos/gb_prob_full_s20260825.tif",
+        "biscarrosse/gb_prob_full_s20260825.tif",
+        "fontainebleau/gb_prob_full_s20260825.tif"
+      ],
+      "importance": [
+        {
+          "feature": "post_ndvi",
+          "drop_in_ap": 0.5697110029446472,
+          "sd": 0.0014951084081076722
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.2958599304866718,
+          "sd": 0.0024869491302092132
+        },
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.29194091518973553,
+          "sd": 0.0032361876724549985
+        },
+        {
+          "feature": "post_nir08",
+          "drop_in_ap": 0.1095091683835741,
+          "sd": 0.0031918795958182466
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.06869713432179492,
+          "sd": 0.0037327697668064768
+        },
+        {
+          "feature": "post_swir22",
+          "drop_in_ap": 0.06392203964008118,
+          "sd": 0.0025931753052022975
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.05532039984401327,
+          "sd": 0.002242769837268435
+        },
+        {
+          "feature": "post_swir16",
+          "drop_in_ap": 0.02168134869912534,
+          "sd": 0.001526342483770493
+        },
+        {
+          "feature": "post_red",
+          "drop_in_ap": 0.018968890244124292,
+          "sd": 0.00019154412406491755
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.009895987439239659,
+          "sd": 0.00034543883260631066
+        },
+        {
+          "feature": "post_nbr2",
+          "drop_in_ap": 0.007804583235205942,
+          "sd": 0.0007799525920350169
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.005483705465000395,
+          "sd": 0.00033480423713247453
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.004718912193600285,
+          "sd": 0.00034995973756399165
+        },
+        {
+          "feature": "post_nbr",
+          "drop_in_ap": 0.0005137928848866213,
+          "sd": 0.0017361811534515631
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.00023725314959629115,
+          "sd": 0.0013047761585587689
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": -8.702349016139384e-05,
+          "sd": 0.0003159771619927144
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
         "dndvi",
         "dnbr2",
         "pre_nbr",
@@ -142,10 +626,11 @@
         "d_swir22"
       ],
       "feature_set": "change_only",
+      "seed": 20260821,
       "rasters": [
-        "saumos/gb_prob_change_only.tif",
-        "biscarrosse/gb_prob_change_only.tif",
-        "fontainebleau/gb_prob_change_only.tif"
+        "saumos/gb_prob_change_only_s20260821.tif",
+        "biscarrosse/gb_prob_change_only_s20260821.tif",
+        "fontainebleau/gb_prob_change_only_s20260821.tif"
       ],
       "importance": [
         {
@@ -192,6 +677,314 @@
           "feature": "d_swir22",
           "drop_in_ap": -0.021110056405440763,
           "sd": 0.0010286938731248053
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "dndvi",
+        "dnbr2",
+        "pre_nbr",
+        "pre_ndvi",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22"
+      ],
+      "feature_set": "change_only",
+      "seed": 20260822,
+      "rasters": [
+        "saumos/gb_prob_change_only_s20260822.tif",
+        "biscarrosse/gb_prob_change_only_s20260822.tif",
+        "fontainebleau/gb_prob_change_only_s20260822.tif"
+      ],
+      "importance": [
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.790922150961892,
+          "sd": 0.00037583410603077
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.5669674642530069,
+          "sd": 0.0043925839303144785
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.24420007344491204,
+          "sd": 0.0027975646052087575
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.14407083347463345,
+          "sd": 0.0029537141163178304
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.116972006882801,
+          "sd": 0.010591504385687442
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.0391457716224786,
+          "sd": 0.003915885305103834
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.03694596424652841,
+          "sd": 0.004834940644155562
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.004886276479684574,
+          "sd": 0.0019517400732869464
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": -0.0016813747171916156,
+          "sd": 0.0018030123928353004
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "dndvi",
+        "dnbr2",
+        "pre_nbr",
+        "pre_ndvi",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22"
+      ],
+      "feature_set": "change_only",
+      "seed": 20260823,
+      "rasters": [
+        "saumos/gb_prob_change_only_s20260823.tif",
+        "biscarrosse/gb_prob_change_only_s20260823.tif",
+        "fontainebleau/gb_prob_change_only_s20260823.tif"
+      ],
+      "importance": [
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.7956909076978,
+          "sd": 0.006218029833909369
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.6134420594827211,
+          "sd": 0.010062963614631054
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.2840651092891809,
+          "sd": 0.006689404532152532
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": 0.24522274766783891,
+          "sd": 0.007042285722583117
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.13742310052599285,
+          "sd": 0.007822781451429181
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.036809388484068194,
+          "sd": 0.0053614638730487595
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.03004438289283747,
+          "sd": 0.0013738243467397249
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.01998421657634375,
+          "sd": 0.0024968399774048028
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.0015604922377076373,
+          "sd": 0.0026672483521865634
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "dndvi",
+        "dnbr2",
+        "pre_nbr",
+        "pre_ndvi",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22"
+      ],
+      "feature_set": "change_only",
+      "seed": 20260824,
+      "rasters": [
+        "saumos/gb_prob_change_only_s20260824.tif",
+        "biscarrosse/gb_prob_change_only_s20260824.tif",
+        "fontainebleau/gb_prob_change_only_s20260824.tif"
+      ],
+      "importance": [
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.789824390790487,
+          "sd": 0.005819094873504034
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.6632881041497534,
+          "sd": 0.002161006536816218
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.17690962089465645,
+          "sd": 0.0030930563954965668
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.10911218949861075,
+          "sd": 0.0059591254924266255
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.03725664099013681,
+          "sd": 0.0029082223011702548
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.01621890745600622,
+          "sd": 0.0022657078750333275
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": 0.015243392712941431,
+          "sd": 0.0012994238298002902
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.005510345248370426,
+          "sd": 0.0008586369664485556
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": 0.003590343675906086,
+          "sd": 0.0037089757849145914
+        }
+      ]
+    },
+    {
+      "event": "saumos",
+      "role": "train",
+      "blocks": [
+        "r1c0",
+        "r1c1",
+        "r2c0"
+      ],
+      "pixels": 1410610,
+      "burned_pixels": 341557,
+      "prevalence": 0.24213,
+      "features": [
+        "dnbr",
+        "dndvi",
+        "dnbr2",
+        "pre_nbr",
+        "pre_ndvi",
+        "d_red",
+        "d_nir08",
+        "d_swir16",
+        "d_swir22"
+      ],
+      "feature_set": "change_only",
+      "seed": 20260825,
+      "rasters": [
+        "saumos/gb_prob_change_only_s20260825.tif",
+        "biscarrosse/gb_prob_change_only_s20260825.tif",
+        "fontainebleau/gb_prob_change_only_s20260825.tif"
+      ],
+      "importance": [
+        {
+          "feature": "dnbr",
+          "drop_in_ap": 0.7725011205968242,
+          "sd": 0.002408409512181916
+        },
+        {
+          "feature": "d_nir08",
+          "drop_in_ap": 0.6292197239295796,
+          "sd": 0.014085150308721392
+        },
+        {
+          "feature": "pre_ndvi",
+          "drop_in_ap": 0.2417381368069853,
+          "sd": 0.0028243168529356343
+        },
+        {
+          "feature": "dnbr2",
+          "drop_in_ap": 0.06754775414636582,
+          "sd": 0.006457587530259802
+        },
+        {
+          "feature": "dndvi",
+          "drop_in_ap": 0.05594408040041099,
+          "sd": 0.001017359647194234
+        },
+        {
+          "feature": "d_swir16",
+          "drop_in_ap": 0.004651915042659938,
+          "sd": 0.0034563490965360114
+        },
+        {
+          "feature": "pre_nbr",
+          "drop_in_ap": 0.0023209034280603134,
+          "sd": 0.0021418642297347194
+        },
+        {
+          "feature": "d_red",
+          "drop_in_ap": 0.0019292226595690372,
+          "sd": 0.0005755850009088032
+        },
+        {
+          "feature": "d_swir22",
+          "drop_in_ap": -0.012498553405943413,
+          "sd": 0.006488409203407858
         }
       ]
     }

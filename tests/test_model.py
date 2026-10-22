@@ -40,6 +40,7 @@ def train_event(cfg):
 # --------------------------------------------------------------------------- #
 
 
+@pytest.mark.usefixtures("rasters")
 def test_training_tiles_lie_entirely_inside_their_role(cfg, train_event):
     """The leak this project exists to avoid. A tile straddling a role seam puts
     calibration or test ground into a training batch, and a U-Net's receptive
@@ -54,6 +55,7 @@ def test_training_tiles_lie_entirely_inside_their_role(cfg, train_event):
             )
 
 
+@pytest.mark.usefixtures("rasters")
 def test_training_and_calibration_tiles_never_share_a_pixel(cfg, train_event):
     grid = grid_for_event(cfg, train_event)
     seen = np.zeros(grid.shape, dtype=bool)
@@ -63,6 +65,7 @@ def test_training_and_calibration_tiles_never_share_a_pixel(cfg, train_event):
         assert not seen[tile.slices].any()
 
 
+@pytest.mark.usefixtures("rasters")
 def test_test_tiles_partition_the_footprint_exactly(cfg):
     """Section 6.1: no overlap between evaluation units, and no gap either --
     the test footprint is geometric and every pixel in it is scored."""
@@ -75,6 +78,7 @@ def test_test_tiles_partition_the_footprint_exactly(cfg):
         assert covered.min() == 1, f"{event.id}: some pixel is never predicted"
 
 
+@pytest.mark.usefixtures("rasters")
 def test_test_tiles_are_not_filtered(cfg):
     """Dropping unburned tiles would inflate precision by an arbitrary factor."""
     for event in cfg.events.values():
@@ -104,6 +108,7 @@ def test_tile_inventory_is_reported_not_engineered(cfg):
 # --------------------------------------------------------------------------- #
 
 
+@pytest.mark.usefixtures("rasters")
 def test_normalisation_is_fitted_on_training_pixels_only(cfg, train_event):
     torch = pytest.importorskip("torch")  # noqa: F841
     from src.model.dataset import fit_normalisation, load_event
@@ -172,6 +177,7 @@ def test_d4_elements_are_distinct():
 # --------------------------------------------------------------------------- #
 
 
+@pytest.mark.usefixtures("rasters")
 def test_a_batch_has_the_shape_the_network_expects(cfg, train_event):
     """T3.1's stated completion criterion: (B, 8, 256, 256)."""
     torch = pytest.importorskip("torch")

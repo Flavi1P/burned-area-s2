@@ -1,0 +1,26 @@
+# Runs the test suite on a clean clone. Rasters and weights are git-ignored, so
+# the guards that read them skip; `-rs` prints every skip with its reason, so
+# what did not run is listed rather than hidden. The guards on the committed
+# outputs/ files and the synthetic-data tests all run.
+#
+# The environment is built from environment.yml itself, unpinned as it is: a
+# green build is also the check that it still resolves.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: environment.yml
+          cache-environment: true
+      - run: pytest -q -rs

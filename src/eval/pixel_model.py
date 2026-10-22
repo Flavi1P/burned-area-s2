@@ -167,7 +167,7 @@ def design_matrix(
 
 
 def training_pixels(
-    cfg: Config, feature_set: str
+    cfg: Config, feature_set: str, seed: int | None = None
 ) -> tuple[np.ndarray, np.ndarray, list[str], dict]:
     """The train-role pixels of the training event, and nothing else."""
     settings = cfg.pixel_model
@@ -188,7 +188,8 @@ def training_pixels(
     train = blocks.mask("train")[valid]
     matrix, truth = matrix[train], label[valid][train]
 
-    rng = np.random.default_rng(int(settings["seed"]))
+    seed = cfg.pixel_model_seeds[0] if seed is None else seed
+    rng = np.random.default_rng(seed)
     cap = int(settings["max_train_pixels"])
     if matrix.shape[0] > cap:
         keep = rng.choice(matrix.shape[0], size=cap, replace=False)
@@ -203,21 +204,27 @@ def training_pixels(
         "prevalence": round(float(truth.mean()), 5),
         "features": names,
         "feature_set": feature_set,
+        "seed": seed,
     }
     return matrix, truth, names, provenance
 
 
-def fit(cfg: Config, feature_set: str | None = None):
-    """Train the booster. No test event is opened anywhere in this call."""
+def fit(cfg: Config, seed: int, feature_set: str | None = None):
+    """Train the booster for one seed. No test event is opened in this call."""
     settings = cfg.pixel_model
+    if seed not in cfg.pixel_model_seeds:
+        raise ValueError(
+            f"seed {seed} is not in pixel_model.seeds {cfg.pixel_model_seeds}: an "
+            "unlisted seed is a seed nobody has to report"
+        )
     feature_set = feature_set or settings["reported"]
-    matrix, truth, names, provenance = training_pixels(cfg, feature_set)
+    matrix, truth, names, provenance = training_pixels(cfg, feature_set, seed)
 
     estimator = HistGradientBoostingClassifier(
         max_iter=int(settings["max_iter"]),
         learning_rate=float(settings["learning_rate"]),
         max_leaf_nodes=int(settings["max_leaf_nodes"]),
-        random_state=int(settings["seed"]),
+        random_state=seed,
     )
     estimator.fit(matrix, truth)
     estimator.feature_names_in_order_ = names  # type: ignore[attr-defined]
@@ -229,12 +236,12 @@ def fit(cfg: Config, feature_set: str | None = None):
 # --------------------------------------------------------------------------- #
 
 
-def probability_path(cfg: Config, event: Event, feature_set: str) -> Path:
-    return cfg.path_for("data_interim", event.id, f"gb_prob_{feature_set}.tif")
+def probability_path(cfg: Config, event: Event, feature_set: str, seed: int) -> Path:
+    return cfg.path_for("data_interim", event.id, f"gb_prob_{feature_set}_s{seed}.tif")
 
 
 def predict(
-    cfg: Config, estimator, event: Event, feature_set: str
+    cfg: Config, estimator, event: Event, feature_set: str, seed: int
 ) -> tuple[Path, np.ndarray]:
     """One probability raster, NaN outside the shared validity mask."""
     grid = grid_for_event(cfg, event)
@@ -243,7 +250,7 @@ def predict(
     score = np.full(grid.shape, np.nan, dtype="float32")
     score[valid] = estimator.predict_proba(matrix)[:, 1].astype("float32")
 
-    dest = probability_path(cfg, event, feature_set)
+    dest = probability_path(cfg, event, feature_set, seed)
     dest.parent.mkdir(parents=True, exist_ok=True)
     with rasterio.open(dest, "w", **grid.profile("float32", nodata=float("nan"))) as dst:
         dst.write(score, 1)
@@ -253,14 +260,17 @@ def predict(
             method=METHOD,
             estimator=cfg.pixel_model["estimator"],
             feature_set=feature_set,
+            seed=str(seed),
             trained_on=cfg.evaluation["threshold"]["calibrated_on"] + ", train blocks",
             note="continuous score; thresholds live in outputs/regimes.json",
         )
     return dest, score
 
 
-def read_probability(cfg: Config, event: Event, feature_set: str) -> np.ndarray:
-    path = probability_path(cfg, event, feature_set)
+def read_probability(
+    cfg: Config, event: Event, feature_set: str, seed: int
+) -> np.ndarray:
+    path = probability_path(cfg, event, feature_set, seed)
     if not path.exists():
         raise FileNotFoundError(
             f"{path} is missing: run `python -m src.eval.pixel_model`"
@@ -270,7 +280,7 @@ def read_probability(cfg: Config, event: Event, feature_set: str) -> np.ndarray:
 
 
 def importance(
-    cfg: Config, estimator, names: list[str], feature_set: str
+    cfg: Config, estimator, names: list[str], feature_set: str, seed: int
 ) -> list[dict]:
     """Permutation importance on the calibration blocks -- held out from the fit.
 
@@ -291,7 +301,7 @@ def importance(
     held_out = blocks.mask(cfg.evaluation["threshold"]["block_role"])[valid]
     matrix, truth = matrix[held_out], label[valid][held_out]
 
-    rng = np.random.default_rng(int(settings["seed"]))
+    rng = np.random.default_rng(seed)
     cap = 120_000
     if matrix.shape[0] > cap:
         keep = rng.choice(matrix.shape[0], size=cap, replace=False)
@@ -302,7 +312,7 @@ def importance(
         matrix,
         truth,
         n_repeats=3,
-        random_state=int(settings["seed"]),
+        random_state=seed,
         scoring="average_precision",
         n_jobs=1,
     )
@@ -322,25 +332,30 @@ def importance(
 
 
 def run(cfg: Config, feature_sets: list[str] | None = None) -> dict:
-    """Fit and predict each configured feature set, and report the fit."""
+    """Fit and predict each configured feature set for every seed."""
     sets = feature_sets or list(cfg.pixel_model["features"])
-    payload: dict = {"estimator": cfg.pixel_model["estimator"], "runs": []}
+    payload: dict = {
+        "estimator": cfg.pixel_model["estimator"],
+        "seeds": cfg.pixel_model_seeds,
+        "runs": [],
+    }
     for feature_set in sets:
-        estimator, provenance = fit(cfg, feature_set)
-        written = []
-        for event in cfg.events.values():
-            dest, _ = predict(cfg, estimator, event, feature_set)
-            # The basename is the same for every event; the event is the path.
-            written.append(f"{event.id}/{dest.name}")
-        payload["runs"].append(
-            {
-                **provenance,
-                "rasters": written,
-                "importance": importance(
-                    cfg, estimator, provenance["features"], feature_set
-                ),
-            }
-        )
+        for seed in cfg.pixel_model_seeds:
+            estimator, provenance = fit(cfg, seed, feature_set)
+            written = []
+            for event in cfg.events.values():
+                dest, _ = predict(cfg, estimator, event, feature_set, seed)
+                # The basename is the same for every event; the event is the path.
+                written.append(f"{event.id}/{dest.name}")
+            payload["runs"].append(
+                {
+                    **provenance,
+                    "rasters": written,
+                    "importance": importance(
+                        cfg, estimator, provenance["features"], feature_set, seed
+                    ),
+                }
+            )
     return payload
 
 
@@ -363,7 +378,10 @@ def main(argv: list[str] | None = None) -> None:
     dest.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     for entry in payload["runs"]:
-        print(f"{entry['feature_set']}  ({len(entry['features'])} features)")
+        print(
+            f"{entry['feature_set']}  seed {entry['seed']}  "
+            f"({len(entry['features'])} features)"
+        )
         print(
             f"  trained on : {entry['event']}, {entry['role']} blocks, "
             f"{entry['pixels']:,} px, {entry['prevalence']:.1%} burned"

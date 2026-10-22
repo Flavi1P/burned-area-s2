@@ -267,6 +267,11 @@ experiments:
 # -----------------------------------------------------------------------------
 evaluation:
 
+  # Randomness that belongs to the evaluation, not to a model: the block
+  # bootstrap and the GMM threshold's subsample. Kept apart from the model seeds
+  # so that adding a training seed never moves an interval or a threshold.
+  seed: 20260821
+
   # Both methods output a continuous per-pixel score; the threshold is what
   # makes a mask. Calibrating one and leaving the other at an arbitrary default
   # compares an optimised operating point to an unoptimised one, with a bias of
@@ -434,7 +439,10 @@ pixel_model:
   # buffered from them, so the pixel model inherits the U-Net's separation
   # guarantee without needing a tiling rule of its own.
   max_train_pixels: 1500000
-  seed: 20260821
+  # One fit per seed, every one reported. The seed drives the subsample of
+  # training pixels and the early-stopping split. The list was fixed before any
+  # multi-seed result existed; the first value is the original single run.
+  seeds: [20260821, 20260822, 20260823, 20260824, 20260825]
 
   # Two feature sets, and the comparison between them is the point.
   #
@@ -492,9 +500,12 @@ model:
   lr: 0.0003
   weight_decay: 0.0001
   lr_schedule: cosine         # to zero over `epochs`; adds no tunable parameter
-  seed: 20260821
-  # No multi-seed spread: it measures optimiser variance, not the variance that
-  # matters, and printing it next to a single-event metric fakes precision.
+  # One training run per seed, every one reported: decoder initialisation,
+  # batch order and augmentation draws. The spread is a floor on the
+  # uncertainty of a U-Net vs GB gap, not an interval on it: it says nothing
+  # about variance across events. Fixed before any multi-seed result existed;
+  # the first value is the original single run. See docs/decisions.md.
+  seeds: [20260821, 20260822, 20260823, 20260824, 20260825]
 
   # The D4 group -- flips and 90-degree rotations -- and nothing else. A burn
   # scar has no canonical orientation, so D4 is label-preserving by construction.
@@ -512,3 +523,23 @@ model:
   select_on: average_precision
   # Windows spawns rather than forks, and 65 in-memory tiles do not need workers.
   num_workers: 0
+
+
+# -----------------------------------------------------------------------------
+# error_maps -- src/viz/errors.py. Diagnostics, not a result: no number in the
+# README is read off these figures, and nothing here feeds back into a model,
+# a threshold or a seed choice.
+# -----------------------------------------------------------------------------
+error_maps:
+  # Every method at its frozen threshold, the protocol's deployable regime.
+  regime: frozen
+  # Which of the configured seeds is drawn for each trained model. Fixed before
+  # any map existed, and read on the training event's calibration blocks only,
+  # never on a test event: the seed whose frozen-threshold IoU on those blocks
+  # is the median of the configured seeds. An odd seed count makes the median
+  # one of the seeds; an even count is refused. Ties go to the lowest seed.
+  representative_seed: median_calibration_iou
+  # One zoom, on the event whose false positives the original phase-2 plan was
+  # about. The window is placed by a rule rather than by eye: the one holding
+  # the most false-positive pixels, summed over every method drawn.
+  zoom: {event: biscarrosse, size_px: 128}

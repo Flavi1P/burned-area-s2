@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-22T20:37:14",
+  "generated": "2026-10-21T10:22:13",
   "config": "config.yaml",
   "min_blocks_for_interval": 4,
   "superblock_km": 17.5,
@@ -11,7 +11,9 @@
     "n_pixels": 772271,
     "n_positive": 16653,
     "objective_value": 0.3831268344632328,
-    "frozen": true
+    "frozen": true,
+    "regime": "frozen",
+    "uses_labels": true
   },
   "calibration_domain": {
     "event": "saumos",
@@ -7946,7 +7948,9 @@
       "n_pixels": 772271,
       "n_positive": 16653,
       "objective_value": 0.3831268344632328,
-      "frozen": true
+      "frozen": true,
+      "regime": "frozen",
+      "uses_labels": true
     },
     "unet": {
       "value": 0.8852156400680542,
@@ -7956,9 +7960,11 @@
       "n_pixels": 772271,
       "n_positive": 16653,
       "objective_value": 0.9397120132462079,
-      "frozen": true
+      "frozen": true,
+      "regime": "frozen",
+      "uses_labels": true
     }
   },
   "title": "Results \u2014 U-Net against the dNBR baseline",
-  "preamble": "Generated 2026-08-22T20:37:14 from `config.yaml` by `python -m src.model.evaluate`, which recomputes both methods in one pass. Every cell below -- both methods, every event -- comes from the same domain, metric, threshold and bootstrap code in `src/eval/`; the network contributes a probability raster and nothing else. Both decision thresholds were fitted by maximising F1 on the same held-out calibration blocks of the training event, frozen there, and applied unchanged to every test event."
+  "preamble": "Generated 2026-10-21T10:22:13 from `config.yaml` by `python -m src.model.evaluate`, which recomputes both methods in one pass. Every cell below -- both methods, every event -- comes from the same domain, metric, threshold and bootstrap code in `src/eval/`; the network contributes a probability raster and nothing else. Both decision thresholds were fitted by maximising F1 on the same held-out calibration blocks of the training event, frozen there, and applied unchanged to every test event."
 }

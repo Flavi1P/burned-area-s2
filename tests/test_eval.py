@@ -19,14 +19,20 @@ import json
 
 import numpy as np
 import pytest
-from sklearn.metrics import f1_score, jaccard_score
+from sklearn.metrics import (
+    cohen_kappa_score,
+    f1_score,
+    jaccard_score,
+    precision_score,
+    recall_score,
+)
 
 from src.config import load_config
 from src.data.grid import grid_for_event
 from src.eval import threshold as threshold_mod
 from src.eval.blocks import ROLE_CODES, blocks_for_event, partition
 from src.eval.bootstrap import block_bootstrap
-from src.eval.metrics import Confusion, confusion, confusion_by_group, evaluate
+from src.eval.metrics import Confusion, confusion, confusion_by_group, evaluate, pr_curve
 
 
 @pytest.fixture(scope="module")
@@ -85,6 +91,27 @@ def test_calibration_refuses_a_set_with_no_positive():
         )
 
 
+def test_otsu_splits_a_bimodal_score_between_its_modes(cfg):
+    """The label-free threshold the deployable claim rests on. Checked on a
+    histogram whose answer is known: two well-separated modes, a minority burn
+    mode, and a handful of extreme outliers the clipping must ignore."""
+    rng = np.random.default_rng(5)
+    background = rng.normal(0.0, 0.1, 90_000)
+    burn = rng.normal(0.6, 0.1, 10_000)
+    outliers = np.full(50, 5.0)
+    score = np.concatenate([background, burn, outliers])
+    picked = threshold_mod.unsupervised(
+        score,
+        score_name="toy",
+        selected_on="toy",
+        estimator="otsu",
+        settings=cfg.evaluation["threshold"]["unsupervised"],
+        seed=0,
+    )
+    assert 0.2 < picked.value < 0.4
+    assert 0.0 < picked.objective_value <= 1.0
+
+
 def test_shipped_threshold_was_not_calibrated_on_a_test_event(cfg):
     """The whole point of freezing it: the target's labels are never consulted."""
     path = threshold_mod.thresholds_path(cfg)
@@ -115,6 +142,27 @@ def test_metrics_agree_with_sklearn(toy):
     assert counts.iou == pytest.approx(jaccard_score(truth, predicted))
     assert counts.f1 == pytest.approx(f1_score(truth, predicted))
     assert counts.n == truth.size
+    assert counts.precision == pytest.approx(precision_score(truth, predicted))
+    assert counts.recall == pytest.approx(recall_score(truth, predicted))
+    # Kappa is the one hand-written formula among them; sklearn is the referee.
+    assert counts.kappa == pytest.approx(cohen_kappa_score(truth, predicted))
+
+
+def test_undefined_ratios_are_nan_not_zero():
+    """An event with no burn and no prediction has no IoU. Reporting 0 would
+    read as a total failure, reporting 1 as a perfect one; both are invented."""
+    empty = Confusion(tp=0, fp=0, fn=0, tn=1_000)
+    for name in ("precision", "recall", "f1", "iou"):
+        assert np.isnan(getattr(empty, name)), name
+
+
+def test_pr_curve_stays_aligned_when_thinned(toy):
+    score, truth, _ = toy
+    curve = pr_curve(score, truth, max_points=50)
+    assert len(curve["precision"]) == len(curve["recall"]) == len(curve["threshold"]) == 50
+    # Thresholds rise, so recall can only fall: a misaligned thinning breaks this.
+    assert np.all(np.diff(curve["threshold"]) > 0)
+    assert np.all(np.diff(curve["recall"]) <= 0)
 
 
 def test_confusion_splits_and_sums_back(toy):

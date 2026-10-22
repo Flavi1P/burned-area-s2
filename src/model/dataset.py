@@ -244,6 +244,7 @@ def training_dataset(
     normalisation: Normalisation,
     role: str = "train",
     augment: bool = True,
+    seed: int | None = None,
 ) -> TileDataset:
     return TileDataset(
         cfg,
@@ -251,7 +252,7 @@ def training_dataset(
         training_tiles(cfg, event, role=role),
         normalisation,
         augment=augment,
-        seed=int(cfg.model["seed"]),
+        seed=cfg.model_seeds[0] if seed is None else seed,
     )
 
 
